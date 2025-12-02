@@ -1,0 +1,133 @@
+name: Test Setup Script
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'setup.sh'
+      - '.github/**'
+      - 'CONTRIBUTING.md'
+
+jobs:
+  test-setup:
+    name: Test setup.sh execution
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create test project directory
+        run: |
+          mkdir -p /tmp/test-project
+          cd /tmp/test-project
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+      - name: Configure git to use HTTPS with token
+        run: |
+          cd /tmp/test-project
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+      - name: Copy setup script to test project
+        run: |
+          cp setup.sh /tmp/test-project/
+          chmod +x /tmp/test-project/setup.sh
+
+      - name: Run setup script
+        working-directory: /tmp/test-project
+        run: |
+          ./setup.sh
+
+      - name: Verify submodule was added
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -d ".coding-guideline" ]; then
+            echo "ERROR: .coding-guideline directory not found"
+            exit 1
+          fi
+          if [ ! -f ".gitmodules" ]; then
+            echo "ERROR: .gitmodules file not found"
+            exit 1
+          fi
+          echo "✓ Submodule added successfully"
+
+      - name: Verify GitHub workflows were copied
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f ".github/workflows/check-pr-title.yml" ]; then
+            echo "ERROR: check-pr-title.yml not found"
+            exit 1
+          fi
+          if [ ! -f ".github/workflows/labeler.yml" ]; then
+            echo "ERROR: labeler.yml workflow not found"
+            exit 1
+          fi
+          if [ ! -f ".github/workflows/release-drafter.yml" ]; then
+            echo "ERROR: release-drafter.yml workflow not found"
+            exit 1
+          fi
+          echo "✓ All workflows copied successfully"
+
+      - name: Verify issue templates were copied
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f ".github/ISSUE_TEMPLATE/bug_report.md" ]; then
+            echo "ERROR: bug_report.md not found"
+            exit 1
+          fi
+          if [ ! -f ".github/ISSUE_TEMPLATE/feature_request.md" ]; then
+            echo "ERROR: feature_request.md not found"
+            exit 1
+          fi
+          echo "✓ Issue templates copied successfully"
+
+      - name: Verify PR template was copied
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f ".github/pull_request_template.md" ]; then
+            echo "ERROR: pull_request_template.md not found"
+            exit 1
+          fi
+          echo "✓ PR template copied successfully"
+
+      - name: Verify labeler configuration was copied
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f ".github/labeler.yml" ]; then
+            echo "ERROR: labeler.yml not found"
+            exit 1
+          fi
+          echo "✓ Labeler configuration copied successfully"
+
+      - name: Verify release drafter configuration was copied
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f ".github/release-drafter.yml" ]; then
+            echo "ERROR: release-drafter.yml not found"
+            exit 1
+          fi
+          echo "✓ Release drafter configuration copied successfully"
+
+      - name: Verify CONTRIBUTING.md was copied
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f "CONTRIBUTING.md" ]; then
+            echo "ERROR: CONTRIBUTING.md not found"
+            exit 1
+          fi
+          echo "✓ CONTRIBUTING.md copied successfully"
+
+      - name: Display test project structure
+        working-directory: /tmp/test-project
+        run: |
+          echo "Test project structure:"
+          tree -L 3 -a || find . -type f -o -type d | head -50
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf /tmp/test-project
