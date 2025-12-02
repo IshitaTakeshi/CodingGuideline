@@ -62,11 +62,18 @@ if [ -f "$SUBMODULE_PATH/.github/pull_request_template.md" ]; then
     echo -e "${GREEN}✓ PR template copied${NC}"
 fi
 
-# Copy labels configuration
-if [ -f "$SUBMODULE_PATH/.github/labels.yml" ]; then
-    echo -e "${YELLOW}Copying labels configuration...${NC}"
-    cp "$SUBMODULE_PATH/.github/labels.yml" .github/labels.yml
-    echo -e "${GREEN}✓ Labels configuration copied${NC}"
+# Copy labeler configuration
+if [ -f "$SUBMODULE_PATH/.github/labeler.yml" ]; then
+    echo -e "${YELLOW}Copying labeler configuration...${NC}"
+    cp "$SUBMODULE_PATH/.github/labeler.yml" .github/labeler.yml
+    echo -e "${GREEN}✓ Labeler configuration copied${NC}"
+fi
+
+# Copy release drafter configuration
+if [ -f "$SUBMODULE_PATH/.github/release-drafter.yml" ]; then
+    echo -e "${YELLOW}Copying release drafter configuration...${NC}"
+    cp "$SUBMODULE_PATH/.github/release-drafter.yml" .github/release-drafter.yml
+    echo -e "${GREEN}✓ Release drafter configuration copied${NC}"
 fi
 
 # Copy CONTRIBUTING.md

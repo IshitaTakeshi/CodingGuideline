@@ -23,7 +23,7 @@ chmod +x setup.sh
 
 The script will:
 - Add this repository as a git submodule (or update if already added)
-- Copy GitHub workflows, issue templates, PR template, and labels configuration
+- Copy GitHub workflows, issue templates, PR template, labeler and release drafter configurations
 - Copy CONTRIBUTING.md to your project root
 
 ## Updating the Guidelines
