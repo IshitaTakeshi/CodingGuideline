@@ -1,140 +1,140 @@
-# 開発ガイドライン (Contributing Guide)
+# Contributing Guide
 
-本プロジェクトでは、開発の透明性を確保し、Semantic Versioning による適切なバージョン管理を行うため、以下のルールに従って開発を進めます。
+To ensure development transparency and proper version management with Semantic Versioning, please follow these rules.
 
-## 1. 基本方針 (Philosophy)
+## 1. Philosophy
 
-* **No Issue, No Code**: すべてのコード変更は Issue から始まります。
-* **Semantic Versioning**: PRのタイトルと履歴に基づいて、自動的にバージョン（Major.Minor.Patch）が決定されます。
-* **Squash & Merge**: `main` ブランチの履歴は「1機能/修正 = 1コミット」で綺麗に保ちます。そのため、**作業中のコミットメッセージは自由ですが、PRのタイトルは厳格に管理されます。**
-
----
-
-## 2. 開発ワークフロー
-
-### Step 1: Issue作成
-タスクやバグを見つけたらIssueを作成します。用途に応じてテンプレートを選択してください。
-* **Feature Request**: 新機能・タスク用（完了条件の記述必須）
-* **Bug Report**: バグ報告用（再現手順の記述必須）
-
-### Step 2: ブランチ作成
-`main` ブランチから作業用ブランチを作成します。
-**命名規則: `prefix/issue-number-description`**
-
-* **prefix**: 後述のTypeに対応するもの（`feature/`, `fix/`, `docs/` など）
-* **issue-number**: 対応するIssue番号
-* **description**: ケバブケース（英小文字とハイフン）での簡潔な説明
-
-**良い例:**
-* ✅ `feature/123-login-page` (Issue #123 のログイン機能)
-* ✅ `fix/45-auth-token-bug` (Issue #45 のバグ修正)
-* ✅ `docs/update-readme` (Issueがない軽微な修正の場合、番号は省略可だが非推奨)
-
-### Step 3: 実装 & Push
-ローカルで開発を行います。最終的に Squash Merge されるため、作業中のコミットメッセージは自由です（`wip`, `fix` 等でも可）。
-
-### Step 4: Pull Request (PR) 作成
-GitHub上でPRを作成します。
-* **タイトル**: **[命名規則](#3-命名規則とsemver-conventional-commits)** に完全に従ってください（CIでチェックされます）。
-* **本文**: `Closes #123` や `Fixes #45` と記述し、Issueと紐付けます。変更内容やスクショ、テスト方法を記載します。
-* **ラベル**: ブランチ名に基づき自動付与されます。
-    * ⚠️ **破壊的変更の場合**: PR作成後、手動で `major` ラベルを付与してください。
-
-### Step 5: レビュー & マージ
-* CI (Lint PR, Tests) が通っていること。
-* レビュアーの承認 (Approve) があること。
-* **マージ担当**: 原則、PR作成者が行います。「Squash and Merge」を選択し、**コミットメッセージがPRタイトルと同じになっているか**最終確認してください。
-
-### Step 6: マージ後の処理
-* **Issue**: `Closes #xxx` の記述があれば自動で Close されます。
-* **Branch**: GitHub設定により、マージ後に自動削除されます（または手動で削除してください）。
+* **No Issue, No Code**: All code changes must start with an Issue.
+* **Semantic Versioning**: Version (Major.Minor.Patch) is automatically determined based on PR titles and history.
+* **Squash & Merge**: The `main` branch history is kept clean with "1 feature/fix = 1 commit". **Commit messages during work are flexible, but PR titles must be strictly managed.**
 
 ---
 
-## 3. 命名規則とSemVer (Conventional Commits)
+## 2. Development Workflow
 
-Pull Request のタイトルは、以下の **Conventional Commits** 形式である必要があります。
+### Step 1: Create an Issue
+When you find a task or bug, create an Issue. Choose the appropriate template:
+* **Feature Request**: For new features/tasks (completion criteria required)
+* **Bug Report**: For bug reports (reproduction steps required)
 
-**フォーマット:**
+### Step 2: Create a Branch
+Create a working branch from `main`.
+**Naming convention: `prefix/issue-number-description`**
+
+* **prefix**: Corresponds to the Type (see below): `feature/`, `fix/`, `docs/`, etc.
+* **issue-number**: The corresponding Issue number
+* **description**: Brief description in kebab-case (lowercase letters and hyphens)
+
+**Good examples:**
+* ✅ `feature/123-login-page` (Login feature for Issue #123)
+* ✅ `fix/45-auth-token-bug` (Bug fix for Issue #45)
+* ✅ `docs/update-readme` (For minor changes without an Issue, the number can be omitted but not recommended)
+
+### Step 3: Implementation & Push
+Develop locally. Since changes will be squash merged, commit messages during work are flexible (e.g., `wip`, `fix`).
+
+### Step 4: Create a Pull Request (PR)
+Create a PR on GitHub.
+* **Title**: Must strictly follow **[Naming Convention](#3-naming-convention-and-semver-conventional-commits)** (checked by CI).
+* **Body**: Include `Closes #123` or `Fixes #45` to link to the Issue. Describe changes, screenshots, and test methods.
+* **Labels**: Automatically assigned based on branch name.
+    * ⚠️ **For breaking changes**: After creating the PR, manually add the `major` label.
+
+### Step 5: Review & Merge
+* CI (Lint PR, Tests) must pass.
+* Reviewer approval is required.
+* **Merge responsibility**: The PR creator should merge. Select "Squash and Merge" and **verify that the commit message matches the PR title**.
+
+### Step 6: Post-Merge Process
+* **Issue**: Automatically closed if `Closes #xxx` is included.
+* **Branch**: Automatically deleted after merge (or delete manually).
+
+---
+
+## 3. Naming Convention and SemVer (Conventional Commits)
+
+Pull Request titles must follow the **Conventional Commits** format.
+
+**Format:**
 ```text
 <type>(<scope>): <description>
 ```
 
-* **type**: 変更の種類（必須・以下の表を参照）
-* **scope**: 変更の影響範囲（任意）。括弧で囲む。
-    * 例: `feat(api):`, `fix(ui):`, `chore(deps):`
-* **description**: 変更内容の簡潔な説明（必須）。日本語可。
+* **type**: Type of change (required - see table below)
+* **scope**: Area of change (optional). Enclosed in parentheses.
+    * Examples: `feat(api):`, `fix(ui):`, `chore(deps):`
+* **description**: Brief description of the change (required).
 
-### Type 一覧とバージョンへの影響
+### Type List and Version Impact
 
-| Type | 意味 | SemVerへの影響 | 対応するブランチ名 |
+| Type | Meaning | SemVer Impact | Corresponding Branch Name |
 | :--- | :--- | :--- | :--- |
-| **feat** | 新機能追加 | Minor (0.x.0) | `feature/xxx` |
-| **fix** | バグ修正 | Patch (0.0.x) | `fix/xxx` |
-| **perf** | パフォーマンス改善 | Patch | `fix/xxx` or `perf/xxx` |
-| **revert** | 変更の取り消し | Patch | `fix/xxx` |
-| **docs** | ドキュメント変更 | 影響なし | `docs/xxx` |
-| **style** | コードフォーマットのみ | 影響なし | `style/xxx` |
-| **refactor** | リファクタリング | 影響なし | `refactor/xxx` |
-| **test** | テスト追加・修正 | 影響なし | `test/xxx` |
-| **build** | ビルドシステム変更 | 影響なし | `chore/xxx` |
-| **ci** | CI設定の変更 | 影響なし | `ci/xxx` |
-| **chore** | その他雑多な変更 | 影響なし | `chore/xxx` |
+| **feat** | New feature | Minor (0.x.0) | `feature/xxx` |
+| **fix** | Bug fix | Patch (0.0.x) | `fix/xxx` |
+| **perf** | Performance improvement | Patch | `fix/xxx` or `perf/xxx` |
+| **revert** | Revert changes | Patch | `fix/xxx` |
+| **docs** | Documentation changes | None | `docs/xxx` |
+| **style** | Code formatting only | None | `style/xxx` |
+| **refactor** | Refactoring | None | `refactor/xxx` |
+| **test** | Test additions/modifications | None | `test/xxx` |
+| **build** | Build system changes | None | `chore/xxx` |
+| **ci** | CI configuration changes | None | `ci/xxx` |
+| **chore** | Other miscellaneous changes | None | `chore/xxx` |
 
-### ⚠️ 破壊的変更 (Major Version Up)
-後方互換性のない変更を含む場合は、以下の手順を行ってください。
-1. Typeの後に `!` を付ける (例: `feat!: APIの認証方式を刷新`)
-2. 本文フッターに `BREAKING CHANGE: 詳細` を記述する
-3. **PRに手動で `major` ラベルを付与する** (Release Drafter用)
+### ⚠️ Breaking Changes (Major Version)
+For changes that break backward compatibility:
+1. Add `!` after the Type (e.g., `feat!: revamp API authentication`)
+2. Include `BREAKING CHANGE: details` in the footer
+3. **Manually add the `major` label to the PR** (for Release Drafter)
 
-### ✅ 良いPRタイトルの例
-* `feat(auth): ログインページを追加`
-* `fix(api): ユーザー情報取得時のnullエラーを修正`
-* `feat!: REST APIをGraphQLに移行` (破壊的変更)
-* `docs: READMEのセットアップ手順を更新`
-* `chore(deps): eslintを8.0.0に更新`
+### ✅ Good PR Title Examples
+* `feat(auth): add login page`
+* `fix(api): fix null error when fetching user info`
+* `feat!: migrate REST API to GraphQL` (breaking change)
+* `docs: update README setup instructions`
+* `chore(deps): update eslint to 8.0.0`
 
-### ❌ 悪いPRタイトルの例
-* `add login page` (Typeがない)
-* `feat:ログイン機能` (コロンの後にスペースがない)
-* `feat(auth) ログイン追加` (コロンがない)
-* `update` (TypeもScopeもなく、内容が不明瞭)
-* `feat(auth): Add login page and fix bug and refactor code` (複数の変更を1つのPRに混ぜている)
-
----
-
-## 4. 自動化設定 (Setup for Maintainers)
-
-本プロジェクトでは、以下のCI設定によりガイドラインの遵守を補助しています。
-
-* **PRタイトルチェック**: [.github/workflows/check-pr-title.yml](.github/workflows/check-pr-title.yml)
-* **自動ラベル付与**: [.github/workflows/labeler.yml](.github/workflows/labeler.yml)
-* **ラベル設定定義**: [.github/labeler.yml](.github/labeler.yml)
+### ❌ Bad PR Title Examples
+* `add login page` (missing Type)
+* `feat:add login` (missing space after colon)
+* `feat(auth) add login` (missing colon)
+* `update` (no Type or Scope, unclear content)
+* `feat(auth): Add login page and fix bug and refactor code` (mixing multiple changes in one PR)
 
 ---
 
-## 5. リリースプロセス (Release Process)
+## 4. Automation Setup (for Maintainers)
 
-本プロジェクトでは **[Release Drafter](https://github.com/release-drafter/release-drafter)** を使用してリリース作業を半自動化しています。
+This project uses the following CI configurations to assist with guideline compliance:
 
-### 設定ファイル
-* **Release Drafter設定**: [.github/release-drafter.yml](.github/release-drafter.yml)
-* **Release Drafterワークフロー**: [.github/workflows/release-drafter.yml](.github/workflows/release-drafter.yml)
+* **PR Title Check**: [.github/workflows/check-pr-title.yml](.github/workflows/check-pr-title.yml)
+* **Auto Labeling**: [.github/workflows/labeler.yml](.github/workflows/labeler.yml)
+* **Labeler Configuration**: [.github/labeler.yml](.github/labeler.yml)
 
-### ラベルとバージョンの対応
+---
 
-PRに付与されたラベルに基づいて、次回のバージョンが決定されます。
+## 5. Release Process
 
-| ラベル | バージョンへの影響 | 備考 |
+This project uses **[Release Drafter](https://github.com/release-drafter/release-drafter)** to semi-automate the release process.
+
+### Configuration Files
+* **Release Drafter Configuration**: [.github/release-drafter.yml](.github/release-drafter.yml)
+* **Release Drafter Workflow**: [.github/workflows/release-drafter.yml](.github/workflows/release-drafter.yml)
+
+### Label to Version Mapping
+
+The next version is determined based on labels assigned to PRs.
+
+| Label | Version Impact | Notes |
 | :--- | :--- | :--- |
-| `major` | 🚨 **Major** (x.0.0) | **手動付与**が必要です |
-| `feature`, `feat` | 🚀 **Minor** (0.x.0) | `feature/*` ブランチから自動付与 |
-| `fix`, `bug`, `perf` | 🐛 **Patch** (0.0.x) | `fix/*` ブランチ等から自動付与 |
-| その他 (`docs`, `chore`等) | 影響なし | バージョン番号は上がりません |
+| `major` | 🚨 **Major** (x.0.0) | **Manual assignment required** |
+| `feature`, `feat` | 🚀 **Minor** (0.x.0) | Auto-assigned from `feature/*` branches |
+| `fix`, `bug`, `perf` | 🐛 **Patch** (0.0.x) | Auto-assigned from `fix/*` branches, etc. |
+| Others (`docs`, `chore`, etc.) | None | Version number does not increase |
 
-### リリースの手順
-1.  **ドラフトの自動生成**: PRが `main` にマージされるたびに、リリースノートの下書き（Draft）が自動更新されます。
-2.  **リリースの実施**: メンテナーは任意のタイミングで GitHub の [Releases] ページを開き、Draft の内容を確認します。
-3.  **Publish**: 内容に問題がなければ「Publish release」をクリックします。
-    * この時点で Git Tag が作成されます。
-    * 正式な Release Note として公開されます。
+### Release Procedure
+1. **Automatic Draft Generation**: Each time a PR is merged to `main`, the release notes draft is automatically updated.
+2. **Execute Release**: Maintainers open the GitHub [Releases] page at any time and review the Draft content.
+3. **Publish**: If the content is correct, click "Publish release".
+    * A Git Tag is created at this point.
+    * Published as an official Release Note.
