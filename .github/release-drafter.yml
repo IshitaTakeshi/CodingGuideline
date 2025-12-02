@@ -43,7 +43,7 @@ version-resolver:
       - 'bug'
       - 'perf'
       - 'revert'
-  default: patch
+  default: null
 template: |
   ## Changes
   $CHANGES
