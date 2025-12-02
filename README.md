@@ -11,45 +11,65 @@ A reusable coding guideline repository that provides standardized development pr
 - Issue and PR templates
 - Automated labeling and PR title validation
 
-## Usage as Git Submodule
+## Quick Start
 
-### Adding to Your Project
+### Automated Setup (Recommended)
 
-To use this coding guideline in your project, add it as a git submodule:
+Run this one-liner from your project root to automatically set up the coding guidelines:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/IshitaTakeshi/CodingGuideline/main/setup.sh | bash
+```
+
+Or download and run the script:
+
+```bash
+wget https://raw.githubusercontent.com/IshitaTakeshi/CodingGuideline/main/setup.sh
+chmod +x setup.sh
+./setup.sh
+```
+
+The script will:
+- Add this repository as a git submodule (or update if already added)
+- Copy GitHub workflows, issue templates, PR template, and labels configuration
+- Copy CONTRIBUTING.md to your project root
+
+### Manual Setup
+
+If you prefer to set up manually:
 
 ```bash
 # Add the submodule to your repository
 git submodule add git@github.com:IshitaTakeshi/CodingGuideline.git .coding-guideline
-
-# Initialize and update the submodule
 git submodule update --init --recursive
+
+# Copy the configurations you need
+mkdir -p .github/workflows .github/ISSUE_TEMPLATE
+cp .coding-guideline/.github/workflows/* .github/workflows/
+cp .coding-guideline/.github/ISSUE_TEMPLATE/* .github/ISSUE_TEMPLATE/
+cp .coding-guideline/.github/pull_request_template.md .github/
+cp .coding-guideline/.github/labels.yml .github/
+cp .coding-guideline/CONTRIBUTING.md ./
+
+# Commit the changes
+git add .github/ CONTRIBUTING.md .coding-guideline
+git commit -m "chore: add coding guidelines"
 ```
 
-### Using the Guidelines
+## Updating the Guidelines
 
-Once added as a submodule, you can reference and copy the configurations you need:
-
-1. **GitHub Workflows**: Copy workflows from `.coding-guideline/.github/workflows/` to `.github/workflows/`
-2. **Issue Templates**: Copy templates from `.coding-guideline/.github/ISSUE_TEMPLATE/` to `.github/ISSUE_TEMPLATE/`
-3. **PR Template**: Copy `.coding-guideline/.github/pull_request_template.md` to `.github/pull_request_template.md`
-4. **Contributing Guide**: Reference or adapt `.coding-guideline/CONTRIBUTING.md`
-5. **Labels Configuration**: Copy `.coding-guideline/.github/labels.yml` to `.github/labels.yml`
-
-### Updating the Guidelines
-
-To update to the latest version of the coding guidelines:
+To update to the latest version, simply run the setup script again:
 
 ```bash
-# Navigate to the submodule directory
+curl -fsSL https://raw.githubusercontent.com/IshitaTakeshi/CodingGuideline/main/setup.sh | bash
+```
+
+Or manually:
+
+```bash
 cd .coding-guideline
-
-# Pull the latest changes
 git pull origin main
-
-# Navigate back to your project root
 cd ..
-
-# Commit the submodule update
 git add .coding-guideline
 git commit -m "chore: update coding guidelines"
 ```
