@@ -11,9 +11,11 @@ performance:
 test:
   - head-branch: ['^test/']
 ci:
-  - head-branch: ['^ci/']
+  - head-branch: ['^ci/', '^pipeline/']
+build:
+  - head-branch: ['^build/']
 chore:
-  - head-branch: ['^chore/', '^build/']
+  - head-branch: ['^chore/']
 revert:
   - head-branch: ['^revert/']
 style:
