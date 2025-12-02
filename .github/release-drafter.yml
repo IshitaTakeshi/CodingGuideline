@@ -13,6 +13,9 @@ categories:
     labels:
       - 'perf'
       - 'performance'
+  - title: '⏪ Reverts'
+    labels:
+      - 'revert'
   - title: '♻️ Refactoring'
     labels:
       - 'refactor'
@@ -39,6 +42,7 @@ version-resolver:
       - 'fix'
       - 'bug'
       - 'perf'
+      - 'revert'
   default: null
 template: |
   ## Changes
