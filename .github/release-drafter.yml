@@ -39,7 +39,7 @@ version-resolver:
       - 'fix'
       - 'bug'
       - 'perf'
-  default: patch
+  default: null
 template: |
   ## Changes
   $CHANGES
