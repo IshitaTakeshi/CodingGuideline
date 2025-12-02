@@ -27,6 +27,11 @@ jobs:
           git config user.email "test@example.com"
           git config user.name "Test User"
 
+      - name: Configure git to use HTTPS with token
+        run: |
+          cd /tmp/test-project
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
       - name: Copy setup script to test project
         run: |
           cp setup.sh /tmp/test-project/
