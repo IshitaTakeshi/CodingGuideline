@@ -21,14 +21,14 @@ When you find a task or bug, create an Issue. Choose the appropriate template:
 Create a working branch from `main`.
 **Naming convention: `prefix/issue-number-description`**
 
-* **prefix**: Corresponds to the Type (see below): `feature/`, `fix/`, `docs/`, etc.
-* **issue-number**: The corresponding Issue number
+* **prefix**: Corresponds to the Type (see below): `feature/`, `fix/`, `documentation/`, etc.
+* **issue-number**: The corresponding Issue number (required)
 * **description**: Brief description in kebab-case (lowercase letters and hyphens)
 
 **Good examples:**
 * ✅ `feature/123-login-page` (Login feature for Issue #123)
 * ✅ `fix/45-auth-token-bug` (Bug fix for Issue #45)
-* ✅ `docs/update-readme` (For minor changes without an Issue, the number can be omitted but not recommended)
+* ✅ `documentation/67-api-guide` (Documentation update for Issue #67)
 
 ### Step 3: Implementation & Push
 Develop locally. Since changes will be squash merged, commit messages during work are flexible (e.g., `wip`, `fix`).
@@ -62,44 +62,58 @@ Pull Request titles must follow the **Conventional Commits** format.
 
 * **type**: Type of change (required - see table below)
 * **scope**: Area of change (optional). Enclosed in parentheses.
-    * Examples: `feat(api):`, `fix(ui):`, `chore(deps):`
+    * Examples: `feature(api):`, `fix(ui):`, `chore(deps):`
 * **description**: Brief description of the change (required).
 
 ### Type List and Version Impact
 
 | Type | Meaning | SemVer Impact | Corresponding Branch Name |
 | :--- | :--- | :--- | :--- |
-| **feat** | New feature | Minor (0.x.0) | `feature/xxx` |
+| **feature** | New feature | Minor (0.x.0) | `feature/xxx` |
 | **fix** | Bug fix | Patch (0.0.x) | `fix/xxx` |
-| **perf** | Performance improvement | Patch | `fix/xxx` or `perf/xxx` |
-| **revert** | Revert changes | Patch | `fix/xxx` |
-| **docs** | Documentation changes | None | `docs/xxx` |
+| **performance** | Performance improvement | Patch | `performance/xxx` |
+| **revert** | Revert changes | Patch | `revert/xxx` |
+| **documentation** | Documentation changes | None | `documentation/xxx` |
 | **style** | Code formatting only | None | `style/xxx` |
 | **refactor** | Refactoring | None | `refactor/xxx` |
 | **test** | Test additions/modifications | None | `test/xxx` |
-| **build** | Build system changes | None | `chore/xxx` |
+| **build** | Build system changes | None | `build/xxx` |
 | **ci** | CI configuration changes | None | `ci/xxx` |
 | **chore** | Other miscellaneous changes | None | `chore/xxx` |
 
 ### ⚠️ Breaking Changes (Major Version)
-For changes that break backward compatibility:
-1. Add `!` after the Type (e.g., `feat!: revamp API authentication`)
-2. Include `BREAKING CHANGE: details` in the footer
-3. **Manually add the `major` label to the PR** (for Release Drafter)
+For changes that break backward compatibility, follow all three steps:
+
+1. Add `!` after the Type in the PR title
+2. Include `BREAKING CHANGE: details` in the PR body footer
+3. **Manually add the `major` label to the PR after creation** (for Release Drafter)
+
+**Complete example:**
+```
+Title: feature!: migrate REST API to GraphQL
+
+Body:
+This PR migrates the entire API from REST to GraphQL.
+
+BREAKING CHANGE: All REST endpoints have been removed. Clients must migrate to GraphQL queries.
+
+Closes #123
+```
+Then manually add the `major` label to the PR.
 
 ### ✅ Good PR Title Examples
-* `feat(auth): add login page`
+* `feature(auth): add login page`
 * `fix(api): fix null error when fetching user info`
-* `feat!: migrate REST API to GraphQL` (breaking change)
-* `docs: update README setup instructions`
+* `feature!: migrate REST API to GraphQL` (breaking change)
+* `documentation: update README setup instructions`
 * `chore(deps): update eslint to 8.0.0`
 
 ### ❌ Bad PR Title Examples
 * `add login page` (missing Type)
-* `feat:add login` (missing space after colon)
-* `feat(auth) add login` (missing colon)
+* `feature:add login` (missing space after colon)
+* `feature(auth) add login` (missing colon)
 * `update` (no Type or Scope, unclear content)
-* `feat(auth): Add login page and fix bug and refactor code` (mixing multiple changes in one PR)
+* `feature(auth): Add login page and fix bug and refactor code` (mixing multiple changes in one PR)
 
 ---
 
@@ -128,9 +142,9 @@ The next version is determined based on labels assigned to PRs.
 | Label | Version Impact | Notes |
 | :--- | :--- | :--- |
 | `major` | 🚨 **Major** (x.0.0) | **Manual assignment required** |
-| `feature`, `feat` | 🚀 **Minor** (0.x.0) | Auto-assigned from `feature/*` branches |
-| `fix`, `bug`, `perf` | 🐛 **Patch** (0.0.x) | Auto-assigned from `fix/*` branches, etc. |
-| Others (`docs`, `chore`, etc.) | None | Version number does not increase |
+| `feature` | 🚀 **Minor** (0.x.0) | Auto-assigned from `feature/*` branches |
+| `fix`, `bug`, `performance` | 🐛 **Patch** (0.0.x) | Auto-assigned from `fix/*`, `performance/*` branches, etc. |
+| Others (`documentation`, `chore`, etc.) | None | Version number does not increase |
 
 ### Release Procedure
 1. **Automatic Draft Generation**: Each time a PR is merged to `main`, the release notes draft is automatically updated.
