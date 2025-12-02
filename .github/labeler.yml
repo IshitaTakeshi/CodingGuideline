@@ -1,16 +1,20 @@
 feature:
-  - head-branch: ['^feature/', '^feat/']
+  - head-branch: ['^feature/']
 bug:
   - head-branch: ['^fix/', '^bugfix/', '^hotfix/']
 documentation:
-  - head-branch: ['^docs/']
+  - head-branch: ['^documentation/']
 refactor:
   - head-branch: ['^refactor/']
 performance:
-  - head-branch: ['^perf/']
+  - head-branch: ['^performance/']
 test:
   - head-branch: ['^test/']
 ci:
   - head-branch: ['^ci/', '^pipeline/']
 chore:
   - head-branch: ['^chore/', '^build/']
+revert:
+  - head-branch: ['^revert/']
+style:
+  - head-branch: ['^style/']
