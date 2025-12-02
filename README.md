@@ -15,16 +15,10 @@ A reusable coding guideline repository that provides standardized development pr
 
 ### Automated Setup (Recommended)
 
-Run this one-liner from your project root to automatically set up the coding guidelines:
+1. Download the setup script from the [GitHub repository](https://github.com/IshitaTakeshi/CodingGuideline)
+2. Run the script from your project root:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/IshitaTakeshi/CodingGuideline/main/setup.sh | bash
-```
-
-Or download and run the script:
-
-```bash
-wget https://raw.githubusercontent.com/IshitaTakeshi/CodingGuideline/main/setup.sh
 chmod +x setup.sh
 ./setup.sh
 ```
@@ -58,13 +52,13 @@ git commit -m "chore: add coding guidelines"
 
 ## Updating the Guidelines
 
-To update to the latest version, simply run the setup script again:
+To update to the latest version, download the latest setup script from the [GitHub repository](https://github.com/IshitaTakeshi/CodingGuideline) and run it again:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/IshitaTakeshi/CodingGuideline/main/setup.sh | bash
+./setup.sh
 ```
 
-Or manually:
+Or update manually:
 
 ```bash
 cd .coding-guideline
