@@ -13,8 +13,6 @@ A reusable coding guideline repository that provides standardized development pr
 
 ## Quick Start
 
-### Automated Setup (Recommended)
-
 1. Download the setup script from the [GitHub repository](https://github.com/IshitaTakeshi/CodingGuideline)
 2. Run the script from your project root:
 
@@ -28,44 +26,12 @@ The script will:
 - Copy GitHub workflows, issue templates, PR template, and labels configuration
 - Copy CONTRIBUTING.md to your project root
 
-### Manual Setup
-
-If you prefer to set up manually:
-
-```bash
-# Add the submodule to your repository
-git submodule add git@github.com:IshitaTakeshi/CodingGuideline.git .coding-guideline
-git submodule update --init --recursive
-
-# Copy the configurations you need
-mkdir -p .github/workflows .github/ISSUE_TEMPLATE
-cp .coding-guideline/.github/workflows/* .github/workflows/
-cp .coding-guideline/.github/ISSUE_TEMPLATE/* .github/ISSUE_TEMPLATE/
-cp .coding-guideline/.github/pull_request_template.md .github/
-cp .coding-guideline/.github/labels.yml .github/
-cp .coding-guideline/CONTRIBUTING.md ./
-
-# Commit the changes
-git add .github/ CONTRIBUTING.md .coding-guideline
-git commit -m "chore: add coding guidelines"
-```
-
 ## Updating the Guidelines
 
 To update to the latest version, download the latest setup script from the [GitHub repository](https://github.com/IshitaTakeshi/CodingGuideline) and run it again:
 
 ```bash
 ./setup.sh
-```
-
-Or update manually:
-
-```bash
-cd .coding-guideline
-git pull origin main
-cd ..
-git add .coding-guideline
-git commit -m "chore: update coding guidelines"
 ```
 
 ### Cloning a Project with This Submodule
