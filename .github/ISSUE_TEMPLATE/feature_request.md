@@ -2,7 +2,7 @@
 name: Feature Request (機能追加・タスク)
 about: 新機能の提案やタスクの起票に使います
 title: ""
-labels: enhancement
+labels: ""
 assignees: ""
 ---
 
