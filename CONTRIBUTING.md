@@ -82,21 +82,14 @@ Pull Request titles must follow the **Conventional Commits** format.
 | **chore** | Other miscellaneous changes | None | `chore/xxx` |
 
 ### ⚠️ Breaking Changes (Major Version)
-For changes that break backward compatibility, follow both steps:
+For changes that break backward compatibility, add `!` after the Type in the PR title. The `major` label will be automatically assigned.
 
-1. Add `!` after the Type in the PR title
-2. Include `BREAKING CHANGE: details` in the PR body footer
-
-The `major` label will be automatically assigned based on the `!` in the PR title.
-
-**Complete example:**
+**Example:**
 ```
 Title: feature!: migrate REST API to GraphQL
 
 Body:
 This PR migrates the entire API from REST to GraphQL.
-
-BREAKING CHANGE: All REST endpoints have been removed. Clients must migrate to GraphQL queries.
 
 Closes #123
 ```
