@@ -7,7 +7,6 @@ categories:
   - title: '🐛 Bug Fixes'
     labels:
       - 'fix'
-      - 'bug'
   - title: '⚡️ Performance Improvements'
     labels:
       - 'performance'
@@ -36,7 +35,6 @@ version-resolver:
   patch:
     labels:
       - 'fix'
-      - 'bug'
       - 'performance'
       - 'revert'
   default: null
