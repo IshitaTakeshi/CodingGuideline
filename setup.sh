@@ -215,7 +215,7 @@ update_files() {
                 cp "$src_file" "$dest_file"
                 add_header_to_file "$dest_file" "$VERSION"
                 echo "  Updated: $dest_file"
-                ((updated_count++))
+                updated_count=$((updated_count + 1))
             else
                 echo -e "  ${YELLOW}Warning: Source file not found: $src_file${NC}"
             fi
