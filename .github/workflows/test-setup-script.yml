@@ -121,6 +121,191 @@ jobs:
           fi
           echo "✓ CONTRIBUTING.md copied successfully"
 
+      - name: Verify manifest file was created
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Manifest file not found"
+            exit 1
+          fi
+          echo "✓ Manifest file created"
+          echo ""
+          echo "Manifest contents:"
+          cat .coding-guideline-manifest.txt
+
+      - name: Verify manifest has version line
+        working-directory: /tmp/test-project
+        run: |
+          if ! grep -q "^version: " .coding-guideline-manifest.txt; then
+            echo "ERROR: Manifest missing version line"
+            exit 1
+          fi
+          echo "✓ Manifest has version line"
+
+      - name: Verify manifest tracks all copied files
+        working-directory: /tmp/test-project
+        run: |
+          expected_files=(
+            ".github/workflows/labeler.yml"
+            ".github/workflows/release-drafter.yml"
+            ".github/workflows/check-pr-title.yml"
+            ".github/ISSUE_TEMPLATE/bug_report.md"
+            ".github/ISSUE_TEMPLATE/feature_request.md"
+            ".github/pull_request_template.md"
+            ".github/labeler.yml"
+            ".github/release-drafter.yml"
+            "CONTRIBUTING.md"
+          )
+
+          for file in "${expected_files[@]}"; do
+            if ! grep -q "^${file}$" .coding-guideline-manifest.txt; then
+              echo "ERROR: Manifest missing tracked file: $file"
+              exit 1
+            fi
+          done
+          echo "✓ All files tracked in manifest"
+
+      - name: Verify YAML files have headers
+        working-directory: /tmp/test-project
+        run: |
+          yaml_files=(
+            ".github/workflows/labeler.yml"
+            ".github/workflows/release-drafter.yml"
+            ".github/labeler.yml"
+            ".github/release-drafter.yml"
+          )
+
+          for file in "${yaml_files[@]}"; do
+            if ! head -n 1 "$file" | grep -q "# Managed by CodingGuideline"; then
+              echo "ERROR: Missing header in $file"
+              head -n 5 "$file"
+              exit 1
+            fi
+            if ! head -n 2 "$file" | tail -n 1 | grep -q "# Do not edit manually"; then
+              echo "ERROR: Missing warning in $file"
+              exit 1
+            fi
+          done
+          echo "✓ All YAML files have proper headers"
+
+      - name: Verify Markdown files have headers
+        working-directory: /tmp/test-project
+        run: |
+          md_files=(
+            ".github/ISSUE_TEMPLATE/bug_report.md"
+            ".github/pull_request_template.md"
+            "CONTRIBUTING.md"
+          )
+
+          for file in "${md_files[@]}"; do
+            if ! head -n 1 "$file" | grep -q "<!-- Managed by CodingGuideline"; then
+              echo "ERROR: Missing header in $file"
+              head -n 5 "$file"
+              exit 1
+            fi
+            if ! head -n 2 "$file" | tail -n 1 | grep -q "<!-- Do not edit manually"; then
+              echo "ERROR: Missing warning in $file"
+              exit 1
+            fi
+          done
+          echo "✓ All Markdown files have proper headers"
+
+      - name: Test update command
+        working-directory: /tmp/test-project
+        run: |
+          echo "Testing update command..."
+
+          # Save original version
+          original_version=$(grep "^version: " .coding-guideline-manifest.txt)
+
+          # Create a test commit in the submodule to simulate a version change
+          cd .coding-guideline
+          echo "# Test change" >> README.md
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git add README.md
+          git commit -m "test: simulate version change"
+          new_commit=$(git rev-parse HEAD)
+          cd ..
+
+          # Run update command
+          ./setup.sh update
+
+          # Verify version was updated
+          new_version=$(grep "^version: " .coding-guideline-manifest.txt)
+          if [ "$original_version" = "$new_version" ]; then
+            echo "ERROR: Version was not updated in manifest"
+            echo "Original: $original_version"
+            echo "New: $new_version"
+            exit 1
+          fi
+
+          # Verify headers were updated with new version
+          if ! head -n 1 .github/workflows/labeler.yml | grep -q "$new_commit"; then
+            echo "ERROR: Header version not updated in YAML file"
+            head -n 1 .github/workflows/labeler.yml
+            exit 1
+          fi
+
+          echo "✓ Update command works correctly"
+
+      - name: Test remove command
+        working-directory: /tmp/test-project
+        run: |
+          echo "Testing remove command..."
+
+          # Count files before removal
+          file_count=$(wc -l < .coding-guideline-manifest.txt)
+          echo "Files tracked in manifest: $((file_count - 1))"
+
+          # Run remove command (simulate 'y' response, then 'n' for submodule)
+          echo -e "y\nn" | ./setup.sh remove
+
+          # Verify manifest is removed
+          if [ -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Manifest file still exists"
+            exit 1
+          fi
+
+          # Verify tracked files are removed
+          if [ -f ".github/workflows/labeler.yml" ]; then
+            echo "ERROR: Tracked file still exists: .github/workflows/labeler.yml"
+            exit 1
+          fi
+
+          if [ -f "CONTRIBUTING.md" ]; then
+            echo "ERROR: Tracked file still exists: CONTRIBUTING.md"
+            exit 1
+          fi
+
+          # Verify submodule still exists (we said 'n')
+          if [ ! -d ".coding-guideline" ]; then
+            echo "ERROR: Submodule was removed when it shouldn't have been"
+            exit 1
+          fi
+
+          echo "✓ Remove command works correctly"
+
+      - name: Test install after remove
+        working-directory: /tmp/test-project
+        run: |
+          echo "Testing reinstall after removal..."
+          ./setup.sh install
+
+          # Verify manifest is recreated
+          if [ ! -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Manifest not recreated"
+            exit 1
+          fi
+
+          # Verify files are reinstalled
+          if [ ! -f ".github/workflows/labeler.yml" ]; then
+            echo "ERROR: Files not reinstalled"
+            exit 1
+          fi
+
+          echo "✓ Reinstall after remove works correctly"
+
       - name: Display test project structure
         working-directory: /tmp/test-project
         run: |
