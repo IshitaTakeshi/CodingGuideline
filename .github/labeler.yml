@@ -1,7 +1,7 @@
 feature:
   - head-branch: ['^feature/']
 fix:
-  - head-branch: ['^fix/', '^bugfix/', '^hotfix/']
+  - head-branch: ['^fix/']
 documentation:
   - head-branch: ['^documentation/']
 refactor:
