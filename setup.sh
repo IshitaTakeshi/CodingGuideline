@@ -266,7 +266,7 @@ remove_files() {
         if [ -n "$line" ] && [ -f "$line" ]; then
             rm "$line"
             echo "  Removed: $line"
-            ((removed_count++))
+            removed_count=$((removed_count + 1))
         fi
     done < "$MANIFEST_FILE"
 
