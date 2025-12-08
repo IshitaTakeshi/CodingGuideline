@@ -1,7 +1,7 @@
-## 関連Issue
+## Related Issue
 - Closes #
 
-## 変更内容
-## 動作確認手順
-## スクリーンショット (Optional)
-## レビューのポイント (Optional)
+## Changes
+## Test Steps
+## Screenshots (Optional)
+## Review Points (Optional)
