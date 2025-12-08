@@ -1,0 +1,67 @@
+name: "Auto-assign Major Label"
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize]
+
+jobs:
+  assign-major-label:
+    name: Auto-assign major label for breaking changes
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Check for breaking change and assign label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prTitle = context.payload.pull_request.title;
+            const prNumber = context.payload.pull_request.number;
+
+            // Check if PR title contains '!' indicating a breaking change
+            // Pattern: type!: or type(scope)!:
+            const hasBreakingChange = /^[a-z]+(\([^)]+\))?!:/.test(prTitle);
+
+            if (hasBreakingChange) {
+              // Get current labels
+              const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber
+              });
+
+              // Check if 'major' label already exists
+              const hasMajorLabel = currentLabels.some(label => label.name === 'major');
+
+              if (!hasMajorLabel) {
+                // Add 'major' label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  labels: ['major']
+                });
+                console.log('Added "major" label to PR #' + prNumber);
+              } else {
+                console.log('PR #' + prNumber + ' already has "major" label');
+              }
+            } else {
+              // Remove 'major' label if title was edited to remove breaking change marker
+              const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber
+              });
+
+              const hasMajorLabel = currentLabels.some(label => label.name === 'major');
+
+              if (hasMajorLabel) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  name: 'major'
+                });
+                console.log('Removed "major" label from PR #' + prNumber + ' as breaking change marker was removed');
+              }
+            }

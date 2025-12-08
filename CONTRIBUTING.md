@@ -38,7 +38,7 @@ Create a PR on GitHub.
 * **Title**: Must strictly follow **[Naming Convention](#3-naming-convention-and-semver-conventional-commits)** (checked by CI).
 * **Body**: Include `Closes #123` or `Fixes #45` to link to the Issue. Describe changes, screenshots, and test methods.
 * **Labels**: Automatically assigned based on branch name.
-    * ⚠️ **For breaking changes**: After creating the PR, manually add the `major` label.
+    * ⚠️ **For breaking changes**: The `major` label is automatically assigned when the PR title contains `!`.
 
 ### Step 5: Review & Merge
 * CI (Lint PR, Tests) must pass.
@@ -82,11 +82,12 @@ Pull Request titles must follow the **Conventional Commits** format.
 | **chore** | Other miscellaneous changes | None | `chore/xxx` |
 
 ### ⚠️ Breaking Changes (Major Version)
-For changes that break backward compatibility, follow all three steps:
+For changes that break backward compatibility, follow both steps:
 
 1. Add `!` after the Type in the PR title
 2. Include `BREAKING CHANGE: details` in the PR body footer
-3. **Manually add the `major` label to the PR after creation** (for Release Drafter)
+
+The `major` label will be automatically assigned based on the `!` in the PR title.
 
 **Complete example:**
 ```
@@ -99,7 +100,7 @@ BREAKING CHANGE: All REST endpoints have been removed. Clients must migrate to G
 
 Closes #123
 ```
-Then manually add the `major` label to the PR.
+The `major` label will be automatically added when the PR is created.
 
 ### ✅ Good PR Title Examples
 * `feature(auth): add login page`
@@ -141,7 +142,7 @@ The next version is determined based on labels assigned to PRs.
 
 | Label | Version Impact | Notes |
 | :--- | :--- | :--- |
-| `major` | 🚨 **Major** (x.0.0) | **Manual assignment required** |
+| `major` | 🚨 **Major** (x.0.0) | **Automatically assigned when PR title contains `!`** |
 | `feature` | 🚀 **Minor** (0.x.0) | Auto-assigned from `feature/*` branches |
 | `fix`, `bug`, `performance`, `revert` | 🐛 **Patch** (0.0.x) | Auto-assigned from `fix/*`, `performance/*`, `revert/*` branches, etc. |
 | Others (`documentation`, `chore`, etc.) | None | Version number does not increase |
