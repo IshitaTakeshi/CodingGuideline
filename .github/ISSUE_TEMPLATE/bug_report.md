@@ -1,17 +1,17 @@
 ---
-name: Bug Report (バグ報告)
-about: バグや不具合の報告に使います
+name: Bug Report
+about: Report a bug or issue
 title: ""
 labels: ""
 assignees: ""
 ---
 
-## バグの概要
-## 再現手順 (Steps to Reproduce)
+## Bug Description
+## Steps to Reproduce
 1.
 2.
 3.
 
-## 期待する挙動 (Expected Behavior)
-## 実際の挙動 (Current Behavior)
-## 環境 (Environment)
+## Expected Behavior
+## Current Behavior
+## Environment
