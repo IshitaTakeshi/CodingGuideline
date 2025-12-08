@@ -223,7 +223,11 @@ update_files() {
     done < "$MANIFEST_FILE"
 
     # Update version in manifest
-    sed -i "1s/.*/version: ${VERSION}/" "$MANIFEST_FILE"
+    {
+        echo "version: ${VERSION}"
+        tail -n +2 "$MANIFEST_FILE"
+    } > "${MANIFEST_FILE}.tmp"
+    mv "${MANIFEST_FILE}.tmp" "$MANIFEST_FILE"
 
     echo ""
     echo -e "${GREEN}✓ Updated $updated_count files${NC}"
