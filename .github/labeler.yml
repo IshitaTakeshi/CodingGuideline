@@ -1,6 +1,6 @@
 feature:
   - head-branch: ['^feature/']
-bug:
+fix:
   - head-branch: ['^fix/', '^bugfix/', '^hotfix/']
 documentation:
   - head-branch: ['^documentation/']
