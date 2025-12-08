@@ -144,7 +144,7 @@ The next version is determined based on labels assigned to PRs.
 | :--- | :--- | :--- |
 | `major` | 🚨 **Major** (x.0.0) | **Automatically assigned when PR title contains `!`** |
 | `feature` | 🚀 **Minor** (0.x.0) | Auto-assigned from `feature/*` branches |
-| `fix`, `bug`, `performance`, `revert` | 🐛 **Patch** (0.0.x) | Auto-assigned from `fix/*`, `performance/*`, `revert/*` branches, etc. |
+| `fix`, `performance`, `revert` | 🐛 **Patch** (0.0.x) | Auto-assigned from `fix/*`, `performance/*`, `revert/*` branches |
 | Others (`documentation`, `chore`, etc.) | None | Version number does not increase |
 
 ### Release Procedure

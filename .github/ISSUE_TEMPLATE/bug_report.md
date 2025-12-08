@@ -2,7 +2,7 @@
 name: Bug Report (バグ報告)
 about: バグや不具合の報告に使います
 title: ""
-labels: bug
+labels: ""
 assignees: ""
 ---
 
