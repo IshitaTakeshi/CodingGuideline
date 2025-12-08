@@ -25,13 +25,65 @@ The script will:
 - Add this repository as a git submodule (or update if already added)
 - Copy GitHub workflows, issue templates, PR template, labeler and release drafter configurations
 - Copy CONTRIBUTING.md to your project root
+- Add comment headers to all copied files indicating they are managed by CodingGuideline
+- Create a manifest file (`.coding-guideline-manifest.txt`) to track all copied files
 
-## Updating the Guidelines
+## Managing the Guidelines
 
-To update to the latest version, download the latest setup script from the [GitHub repository](https://github.com/IshitaTakeshi/CodingGuideline) and run it again:
+### Updating to the Latest Version
+
+To update all guideline files to the latest version:
 
 ```bash
-./setup.sh
+./setup.sh update
+```
+
+This will:
+- Update the submodule to the latest version
+- Refresh all tracked files with the latest content
+- Update comment headers with the new version
+
+### Removing the Guidelines
+
+To remove all guideline files from your project:
+
+```bash
+./setup.sh remove
+```
+
+This will:
+- Remove all files tracked in the manifest
+- Optionally remove the submodule
+- Clean up the manifest file
+
+The script will ask for confirmation before removing files.
+
+### How File Tracking Works
+
+All copied files include comment headers that identify them as managed by CodingGuideline:
+
+**YAML files** (workflows, configs):
+```yaml
+# Managed by CodingGuideline (version: abc1234)
+# Do not edit manually - changes may be overwritten
+# To update: run setup.sh update
+```
+
+**Markdown files** (templates, documentation):
+```markdown
+<!-- Managed by CodingGuideline (version: abc1234) -->
+<!-- Do not edit manually - changes may be overwritten -->
+<!-- To update: run setup.sh update -->
+```
+
+The manifest file (`.coding-guideline-manifest.txt`) tracks all copied files:
+```
+version: abc1234567890...
+.github/workflows/labeler.yml
+.github/workflows/release-drafter.yml
+.github/ISSUE_TEMPLATE/bug_report.md
+.github/pull_request_template.md
+CONTRIBUTING.md
 ```
 
 ### Cloning a Project with This Submodule
