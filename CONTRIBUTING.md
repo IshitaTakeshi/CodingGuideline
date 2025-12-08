@@ -82,7 +82,7 @@ Pull Request titles must follow the **Conventional Commits** format.
 | **chore** | Other miscellaneous changes | None | `chore/xxx` |
 
 ### ⚠️ Breaking Changes (Major Version)
-For changes that break backward compatibility, add `!` after the Type in the PR title. The `major` label will be automatically assigned.
+For changes that break backward compatibility, add `!` before the colon (after type or scope if present) in the PR title. The `major` label will be automatically assigned.
 
 **Example:**
 ```
