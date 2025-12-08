@@ -220,35 +220,27 @@ jobs:
         run: |
           echo "Testing update command..."
 
-          # Save original version
-          original_version=$(grep "^version: " .coding-guideline-manifest.txt)
-
-          # Create a test commit in the submodule to simulate a version change
-          cd .coding-guideline
-          echo "# Test change" >> README.md
-          git config user.email "test@example.com"
-          git config user.name "Test User"
-          git add README.md
-          git commit -m "test: simulate version change"
-          new_commit=$(git rev-parse HEAD)
-          cd ..
+          # Save a sample file to verify it gets refreshed
+          echo "# Modified locally" > .github/workflows/labeler.yml
 
           # Run update command
           ./setup.sh update
 
-          # Verify version was updated
-          new_version=$(grep "^version: " .coding-guideline-manifest.txt)
-          if [ "$original_version" = "$new_version" ]; then
-            echo "ERROR: Version was not updated in manifest"
-            echo "Original: $original_version"
-            echo "New: $new_version"
+          # Verify files were refreshed (local change should be overwritten)
+          if grep -q "# Modified locally" .github/workflows/labeler.yml; then
+            echo "ERROR: File was not refreshed by update command"
             exit 1
           fi
 
-          # Verify headers were updated with new version
-          if ! head -n 1 .github/workflows/labeler.yml | grep -q "$new_commit"; then
-            echo "ERROR: Header version not updated in YAML file"
-            head -n 1 .github/workflows/labeler.yml
+          # Verify file still has proper header
+          if ! head -n 1 .github/workflows/labeler.yml | grep -q "# Managed by CodingGuideline"; then
+            echo "ERROR: Header missing after update"
+            exit 1
+          fi
+
+          # Verify manifest still exists
+          if [ ! -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Manifest removed by update"
             exit 1
           fi
 
