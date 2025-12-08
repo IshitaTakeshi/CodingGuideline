@@ -36,7 +36,7 @@ Develop locally. Since changes will be squash merged, commit messages during wor
 ### Step 4: Create a Pull Request (PR)
 Create a PR on GitHub.
 * **Title**: Must strictly follow **[Naming Convention](#3-naming-convention-and-semver-conventional-commits)** (checked by CI).
-* **Body**: Include `Closes #123` or `Fixes #45` to link to the Issue. Describe changes, screenshots, and test methods.
+* **Body**: Include `Closes #123` to link to the Issue. Describe changes, screenshots, and test methods.
 * **Labels**: Automatically assigned based on branch name.
     * ⚠️ **For breaking changes**: The `major` label is automatically assigned when the PR title contains `!`.
 
