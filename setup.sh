@@ -156,7 +156,7 @@ install_files() {
     # Copy CONTRIBUTING.md
     if [ -f "$SUBMODULE_PATH/CONTRIBUTING.md" ]; then
         echo -e "${YELLOW}Copying CONTRIBUTING.md...${NC}"
-        copy_with_tracking "$SUBMODULE_PATH/CONTRIBUTING.md" "./CONTRIBUTING.md" "$VERSION"
+        copy_with_tracking "$SUBMODULE_PATH/CONTRIBUTING.md" "CONTRIBUTING.md" "$VERSION"
         echo -e "${GREEN}✓ CONTRIBUTING.md copied${NC}"
     fi
 
