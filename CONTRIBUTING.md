@@ -43,7 +43,7 @@ Create a PR on GitHub.
 ### Step 5: Review & Merge
 * CI (Lint PR, Tests) must pass.
 * Reviewer approval is required.
-* **Merge responsibility**: The PR creator should merge. Select "Squash and Merge" and **verify that the commit message matches the PR title**.
+* Select "Squash and Merge" and **verify that the commit message matches the PR title**.
 
 ### Step 6: Post-Merge Process
 * **Issue**: Automatically closed if `Closes #xxx` is included.
