@@ -37,7 +37,7 @@ version-resolver:
       - 'fix'
       - 'performance'
       - 'revert'
-  default: null
+  default: patch
 template: |
   ## Changes
   $CHANGES
