@@ -558,8 +558,9 @@ jobs:
           cp /tmp/test-project/setup.sh .
           ./setup.sh
 
-          # Remove with submodule deletion (simulate 'y' for both)
-          echo -e "y\ny" | ./setup.sh remove
+          # Remove with submodule deletion (simulate 'y' for both prompts)
+          # Note: use printf "yy" not echo -e "y\ny" because read -n 1 reads char-by-char
+          printf "yy" | ./setup.sh remove
 
           # Verify submodule is removed
           if [ -d ".coding-guideline" ]; then

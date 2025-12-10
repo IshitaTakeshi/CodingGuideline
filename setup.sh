@@ -282,6 +282,10 @@ remove_files() {
         git submodule deinit -f "$SUBMODULE_PATH"
         git rm -f "$SUBMODULE_PATH"
         rm -rf ".git/modules/$SUBMODULE_PATH"
+        # Ensure physical directory is removed even if git rm didn't remove it
+        if [ -d "$SUBMODULE_PATH" ]; then
+            rm -rf "$SUBMODULE_PATH"
+        fi
         echo -e "${GREEN}✓ Submodule removed${NC}"
     fi
 
