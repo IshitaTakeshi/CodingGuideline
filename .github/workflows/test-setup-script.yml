@@ -121,11 +121,705 @@ jobs:
           fi
           echo "✓ CONTRIBUTING.md copied successfully"
 
+      - name: Verify manifest file was created
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Manifest file not found"
+            exit 1
+          fi
+          echo "✓ Manifest file created"
+          echo ""
+          echo "Manifest contents:"
+          cat .coding-guideline-manifest.txt
+
+      - name: Verify manifest has version line
+        working-directory: /tmp/test-project
+        run: |
+          if ! grep -q "^version: " .coding-guideline-manifest.txt; then
+            echo "ERROR: Manifest missing version line"
+            exit 1
+          fi
+          echo "✓ Manifest has version line"
+
+      - name: Verify manifest tracks all copied files
+        working-directory: /tmp/test-project
+        run: |
+          expected_files=(
+            ".github/workflows/auto-label-major.yml"
+            ".github/workflows/check-pr-title.yml"
+            ".github/workflows/labeler.yml"
+            ".github/workflows/release-drafter.yml"
+            ".github/workflows/test-setup-script.yml"
+            ".github/ISSUE_TEMPLATE/bug_report.md"
+            ".github/ISSUE_TEMPLATE/feature_request.md"
+            ".github/pull_request_template.md"
+            ".github/labeler.yml"
+            ".github/release-drafter.yml"
+            "CONTRIBUTING.md"
+          )
+
+          for file in "${expected_files[@]}"; do
+            if ! grep -q "^${file}$" .coding-guideline-manifest.txt; then
+              echo "ERROR: Manifest missing tracked file: $file"
+              exit 1
+            fi
+          done
+          echo "✓ All files tracked in manifest"
+
+      - name: Verify YAML files have headers
+        working-directory: /tmp/test-project
+        run: |
+          yaml_files=(
+            ".github/workflows/auto-label-major.yml"
+            ".github/workflows/check-pr-title.yml"
+            ".github/workflows/labeler.yml"
+            ".github/workflows/release-drafter.yml"
+            ".github/workflows/test-setup-script.yml"
+            ".github/labeler.yml"
+            ".github/release-drafter.yml"
+          )
+
+          for file in "${yaml_files[@]}"; do
+            if ! head -n 1 "$file" | grep -q "# Managed by CodingGuideline"; then
+              echo "ERROR: Missing header in $file"
+              head -n 5 "$file"
+              exit 1
+            fi
+            if ! head -n 2 "$file" | tail -n 1 | grep -q "# Do not edit manually"; then
+              echo "ERROR: Missing warning in $file"
+              exit 1
+            fi
+          done
+          echo "✓ All YAML files have proper headers"
+
+      - name: Verify Markdown files have headers
+        working-directory: /tmp/test-project
+        run: |
+          md_files=(
+            ".github/ISSUE_TEMPLATE/bug_report.md"
+            ".github/pull_request_template.md"
+            "CONTRIBUTING.md"
+          )
+
+          for file in "${md_files[@]}"; do
+            if ! head -n 1 "$file" | grep -q "<!-- Managed by CodingGuideline"; then
+              echo "ERROR: Missing header in $file"
+              head -n 5 "$file"
+              exit 1
+            fi
+            if ! head -n 2 "$file" | tail -n 1 | grep -q "<!-- Do not edit manually"; then
+              echo "ERROR: Missing warning in $file"
+              exit 1
+            fi
+          done
+          echo "✓ All Markdown files have proper headers"
+
+      - name: Test update command
+        working-directory: /tmp/test-project
+        run: |
+          echo "Testing update command..."
+
+          # Save a sample file to verify it gets refreshed
+          echo "# Modified locally" > .github/workflows/labeler.yml
+
+          # Run update command
+          ./setup.sh update
+
+          # Verify files were refreshed (local change should be overwritten)
+          if grep -q "# Modified locally" .github/workflows/labeler.yml; then
+            echo "ERROR: File was not refreshed by update command"
+            exit 1
+          fi
+
+          # Verify file still has proper header
+          if ! head -n 1 .github/workflows/labeler.yml | grep -q "# Managed by CodingGuideline"; then
+            echo "ERROR: Header missing after update"
+            exit 1
+          fi
+
+          # Verify manifest still exists
+          if [ ! -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Manifest removed by update"
+            exit 1
+          fi
+
+          echo "✓ Update command works correctly"
+
+      - name: Test remove command
+        working-directory: /tmp/test-project
+        run: |
+          echo "Testing remove command..."
+
+          # Count files before removal
+          file_count=$(wc -l < .coding-guideline-manifest.txt)
+          echo "Files tracked in manifest: $((file_count - 1))"
+
+          # Run remove command (simulate 'y' response, then 'n' for submodule)
+          echo -e "y\nn" | ./setup.sh remove
+
+          # Verify manifest is removed
+          if [ -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Manifest file still exists"
+            exit 1
+          fi
+
+          # Verify tracked files are removed
+          if [ -f ".github/workflows/labeler.yml" ]; then
+            echo "ERROR: Tracked file still exists: .github/workflows/labeler.yml"
+            exit 1
+          fi
+
+          if [ -f "CONTRIBUTING.md" ]; then
+            echo "ERROR: Tracked file still exists: CONTRIBUTING.md"
+            exit 1
+          fi
+
+          # Verify submodule still exists (we said 'n')
+          if [ ! -d ".coding-guideline" ]; then
+            echo "ERROR: Submodule was removed when it shouldn't have been"
+            exit 1
+          fi
+
+          echo "✓ Remove command works correctly"
+
+      - name: Test install after remove
+        working-directory: /tmp/test-project
+        run: |
+          echo "Testing reinstall after removal..."
+          ./setup.sh install
+
+          # Verify manifest is recreated
+          if [ ! -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Manifest not recreated"
+            exit 1
+          fi
+
+          # Verify files are reinstalled
+          if [ ! -f ".github/workflows/labeler.yml" ]; then
+            echo "ERROR: Files not reinstalled"
+            exit 1
+          fi
+
+          echo "✓ Reinstall after remove works correctly"
+
       - name: Display test project structure
         working-directory: /tmp/test-project
         run: |
           echo "Test project structure:"
           tree -L 3 -a || find . -type f -o -type d | head -50
+
+      # Edge case tests: Error handling
+      - name: Test error when not in git repository
+        run: |
+          echo "Testing error handling for non-git repository..."
+          mkdir -p /tmp/non-git-project
+          cp setup.sh /tmp/non-git-project/
+          cd /tmp/non-git-project
+
+          if ./setup.sh 2>&1 | grep -q "Not in a git repository"; then
+            echo "✓ Correctly detected non-git repository"
+          else
+            echo "ERROR: Should fail when not in git repository"
+            exit 1
+          fi
+
+          rm -rf /tmp/non-git-project
+
+      - name: Test invalid command argument
+        working-directory: /tmp/test-project
+        run: |
+          echo "Testing invalid command handling..."
+
+          if ./setup.sh invalid_command 2>&1 | grep -q "Usage:"; then
+            echo "✓ Correctly shows usage for invalid command"
+          else
+            echo "ERROR: Should show usage for invalid command"
+            exit 1
+          fi
+
+      - name: Test default command behavior
+        run: |
+          echo "Testing default command (no arguments)..."
+          mkdir -p /tmp/test-default
+          cd /tmp/test-default
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+
+          # Run without arguments (should default to install)
+          ./setup.sh
+
+          if [ ! -f ".coding-guideline-manifest.txt" ]; then
+            echo "ERROR: Default command should run install"
+            exit 1
+          fi
+
+          echo "✓ Default command runs install"
+          rm -rf /tmp/test-default
+
+      # File conflict scenario tests
+      - name: Test install with pre-existing files
+        run: |
+          echo "Testing install when files already exist..."
+          mkdir -p /tmp/test-preexisting
+          cd /tmp/test-preexisting
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          # Create pre-existing files
+          mkdir -p .github/workflows
+          echo "# Original content" > .github/workflows/labeler.yml
+          echo "# Original CONTRIBUTING" > CONTRIBUTING.md
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Verify files were overwritten
+          if grep -q "# Original content" .github/workflows/labeler.yml; then
+            echo "ERROR: Pre-existing file was not overwritten"
+            exit 1
+          fi
+
+          if ! grep -q "Managed by CodingGuideline" .github/workflows/labeler.yml; then
+            echo "ERROR: File should have been replaced with guideline version"
+            exit 1
+          fi
+
+          echo "✓ Pre-existing files correctly overwritten"
+          rm -rf /tmp/test-preexisting
+
+      - name: Test update with missing source files
+        run: |
+          echo "Testing update when source file is missing..."
+          mkdir -p /tmp/test-missing-source
+          cd /tmp/test-missing-source
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Manually add a non-existent file to manifest
+          echo "nonexistent-file.txt" >> .coding-guideline-manifest.txt
+
+          # Run update - should show warning but not fail
+          if ./setup.sh update 2>&1 | grep -q "Warning: Source file not found"; then
+            echo "✓ Update shows warning for missing source files"
+          else
+            echo "ERROR: Should warn about missing source files"
+            exit 1
+          fi
+
+          rm -rf /tmp/test-missing-source
+
+      # Manifest integrity tests
+      - name: Test update with corrupted manifest
+        run: |
+          echo "Testing update with corrupted manifest..."
+          mkdir -p /tmp/test-corrupt-manifest
+          cd /tmp/test-corrupt-manifest
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Corrupt the manifest (remove version line)
+          tail -n +2 .coding-guideline-manifest.txt > .coding-guideline-manifest.txt.tmp
+          mv .coding-guideline-manifest.txt.tmp .coding-guideline-manifest.txt
+
+          # Update should still work - it will add version line
+          ./setup.sh update
+
+          # Verify version line was added back
+          if ! grep -q "^version: " .coding-guideline-manifest.txt; then
+            echo "ERROR: Version line should be restored"
+            exit 1
+          fi
+
+          echo "✓ Update handles corrupted manifest"
+          rm -rf /tmp/test-corrupt-manifest
+
+      - name: Test update without manifest file
+        run: |
+          echo "Testing update when manifest is missing..."
+          mkdir -p /tmp/test-no-manifest
+          cd /tmp/test-no-manifest
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+
+          # Try update without installing first
+          if ./setup.sh update 2>&1 | grep -q "Manifest file not found"; then
+            echo "✓ Update correctly reports missing manifest"
+          else
+            echo "ERROR: Should report missing manifest"
+            exit 1
+          fi
+
+          rm -rf /tmp/test-no-manifest
+
+      - name: Test manifest file tracking consistency
+        run: |
+          echo "Testing manifest tracks exactly what was installed..."
+          mkdir -p /tmp/test-manifest-consistency
+          cd /tmp/test-manifest-consistency
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Count files in manifest (excluding version line)
+          manifest_count=$(tail -n +2 .coding-guideline-manifest.txt | grep -v '^$' | wc -l)
+
+          # Count actual files that should be tracked
+          actual_count=0
+          while IFS= read -r line; do
+            if [[ "$line" == version:* ]]; then
+              continue
+            fi
+            if [ -n "$line" ] && [ -f "$line" ]; then
+              actual_count=$((actual_count + 1))
+            fi
+          done < .coding-guideline-manifest.txt
+
+          if [ "$manifest_count" -ne "$actual_count" ]; then
+            echo "ERROR: Manifest tracking inconsistency"
+            echo "Manifest entries: $manifest_count"
+            echo "Actual files: $actual_count"
+            exit 1
+          fi
+
+          echo "✓ Manifest tracking is consistent ($actual_count files)"
+          rm -rf /tmp/test-manifest-consistency
+
+      # Submodule operations tests
+      - name: Test install when submodule already exists
+        run: |
+          echo "Testing install when submodule already exists..."
+          mkdir -p /tmp/test-existing-submodule
+          cd /tmp/test-existing-submodule
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+
+          # First install
+          ./setup.sh
+
+          # Get the version
+          version1=$(grep "^version: " .coding-guideline-manifest.txt | cut -d' ' -f2)
+
+          # Second install (submodule already exists)
+          if ./setup.sh 2>&1 | grep -q "Submodule already exists"; then
+            echo "✓ Correctly detected existing submodule"
+          else
+            echo "ERROR: Should detect existing submodule"
+            exit 1
+          fi
+
+          # Verify files are still installed
+          if [ ! -f "CONTRIBUTING.md" ]; then
+            echo "ERROR: Files should still be installed"
+            exit 1
+          fi
+
+          echo "✓ Install with existing submodule works correctly"
+          rm -rf /tmp/test-existing-submodule
+
+      - name: Test remove with submodule deletion
+        run: |
+          echo "Testing remove command with submodule deletion..."
+          mkdir -p /tmp/test-remove-submodule
+          cd /tmp/test-remove-submodule
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Remove with submodule deletion (simulate 'y' for both prompts)
+          # Note: use printf "yy" not echo -e "y\ny" because read -n 1 reads char-by-char
+          printf "yy" | ./setup.sh remove
+
+          # Verify submodule is removed
+          if [ -d ".coding-guideline" ]; then
+            echo "ERROR: Submodule directory should be removed"
+            exit 1
+          fi
+
+          if [ -f ".gitmodules" ]; then
+            echo "ERROR: .gitmodules should be cleaned up"
+            exit 1
+          fi
+
+          echo "✓ Remove with submodule deletion works correctly"
+          rm -rf /tmp/test-remove-submodule
+
+      # Complete header validation tests
+      - name: Verify all 3 header lines in YAML files
+        run: |
+          echo "Testing all 3 header lines in YAML files..."
+          mkdir -p /tmp/test-yaml-headers
+          cd /tmp/test-yaml-headers
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Get version from manifest
+          version=$(grep "^version: " .coding-guideline-manifest.txt | cut -d' ' -f2)
+
+          # Check all 3 lines in a YAML file
+          test_file=".github/workflows/labeler.yml"
+
+          line1=$(head -n 1 "$test_file")
+          line2=$(head -n 2 "$test_file" | tail -n 1)
+          line3=$(head -n 3 "$test_file" | tail -n 1)
+
+          if [[ ! "$line1" =~ "# Managed by CodingGuideline (version: ${version})" ]]; then
+            echo "ERROR: Line 1 header missing or incorrect"
+            echo "Expected: # Managed by CodingGuideline (version: ${version})"
+            echo "Got: $line1"
+            exit 1
+          fi
+
+          if [[ ! "$line2" =~ "# Do not edit manually - changes may be overwritten" ]]; then
+            echo "ERROR: Line 2 header missing or incorrect"
+            echo "Got: $line2"
+            exit 1
+          fi
+
+          if [[ ! "$line3" =~ "# To update: run setup.sh update" ]]; then
+            echo "ERROR: Line 3 header missing or incorrect"
+            echo "Got: $line3"
+            exit 1
+          fi
+
+          echo "✓ All 3 YAML header lines validated"
+          rm -rf /tmp/test-yaml-headers
+
+      - name: Verify all 3 header lines in Markdown files
+        run: |
+          echo "Testing all 3 header lines in Markdown files..."
+          mkdir -p /tmp/test-md-headers
+          cd /tmp/test-md-headers
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Get version from manifest
+          version=$(grep "^version: " .coding-guideline-manifest.txt | cut -d' ' -f2)
+
+          # Check all 3 lines in a Markdown file
+          test_file="CONTRIBUTING.md"
+
+          line1=$(head -n 1 "$test_file")
+          line2=$(head -n 2 "$test_file" | tail -n 1)
+          line3=$(head -n 3 "$test_file" | tail -n 1)
+
+          if [[ ! "$line1" =~ "<!-- Managed by CodingGuideline (version: ${version}) -->" ]]; then
+            echo "ERROR: Line 1 header missing or incorrect in Markdown"
+            echo "Expected: <!-- Managed by CodingGuideline (version: ${version}) -->"
+            echo "Got: $line1"
+            exit 1
+          fi
+
+          if [[ ! "$line2" =~ "<!-- Do not edit manually - changes may be overwritten -->" ]]; then
+            echo "ERROR: Line 2 header missing or incorrect in Markdown"
+            echo "Got: $line2"
+            exit 1
+          fi
+
+          if [[ ! "$line3" =~ "<!-- To update: run setup.sh update -->" ]]; then
+            echo "ERROR: Line 3 header missing or incorrect in Markdown"
+            echo "Got: $line3"
+            exit 1
+          fi
+
+          echo "✓ All 3 Markdown header lines validated"
+          rm -rf /tmp/test-md-headers
+
+      - name: Verify version format in headers matches manifest
+        run: |
+          echo "Testing version consistency between manifest and headers..."
+          mkdir -p /tmp/test-version-format
+          cd /tmp/test-version-format
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Get version from manifest
+          manifest_version=$(grep "^version: " .coding-guideline-manifest.txt | cut -d' ' -f2)
+
+          # Extract version from a YAML file header
+          yaml_version=$(head -n 1 .github/workflows/labeler.yml | sed -n 's/.*version: \([^)]*\).*/\1/p')
+
+          # Extract version from a Markdown file header
+          md_version=$(head -n 1 CONTRIBUTING.md | sed -n 's/.*version: \([^)]*\).*/\1/p')
+
+          if [ "$manifest_version" != "$yaml_version" ]; then
+            echo "ERROR: YAML header version doesn't match manifest"
+            echo "Manifest: $manifest_version"
+            echo "YAML header: $yaml_version"
+            exit 1
+          fi
+
+          if [ "$manifest_version" != "$md_version" ]; then
+            echo "ERROR: Markdown header version doesn't match manifest"
+            echo "Manifest: $manifest_version"
+            echo "Markdown header: $md_version"
+            exit 1
+          fi
+
+          # Verify it's a valid git hash format (40 char hex)
+          if [[ ! "$manifest_version" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "ERROR: Version should be a valid git commit hash"
+            echo "Got: $manifest_version"
+            exit 1
+          fi
+
+          echo "✓ Version format is consistent and valid"
+          rm -rf /tmp/test-version-format
+
+      # Update command edge case tests
+      - name: Test multiple consecutive updates (idempotency)
+        run: |
+          echo "Testing idempotency of update command..."
+          mkdir -p /tmp/test-idempotency
+          cd /tmp/test-idempotency
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Get checksums after first install
+          checksum1=$(md5sum .github/workflows/labeler.yml | cut -d' ' -f1)
+          manifest1=$(md5sum .coding-guideline-manifest.txt | cut -d' ' -f1)
+
+          # Run update multiple times
+          ./setup.sh update
+          checksum2=$(md5sum .github/workflows/labeler.yml | cut -d' ' -f1)
+          manifest2=$(md5sum .coding-guideline-manifest.txt | cut -d' ' -f1)
+
+          ./setup.sh update
+          checksum3=$(md5sum .github/workflows/labeler.yml | cut -d' ' -f1)
+          manifest3=$(md5sum .coding-guideline-manifest.txt | cut -d' ' -f1)
+
+          # All checksums should be the same (idempotent)
+          if [ "$checksum1" != "$checksum2" ] || [ "$checksum2" != "$checksum3" ]; then
+            echo "ERROR: Update is not idempotent - file contents changed"
+            exit 1
+          fi
+
+          if [ "$manifest1" != "$manifest2" ] || [ "$manifest2" != "$manifest3" ]; then
+            echo "ERROR: Update is not idempotent - manifest changed"
+            exit 1
+          fi
+
+          echo "✓ Update command is idempotent"
+          rm -rf /tmp/test-idempotency
+
+      - name: Test update preserves file count
+        run: |
+          echo "Testing update preserves correct file count..."
+          mkdir -p /tmp/test-update-count
+          cd /tmp/test-update-count
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh
+
+          # Count files before update
+          before_count=$(tail -n +2 .coding-guideline-manifest.txt | grep -v '^$' | wc -l)
+
+          # Update
+          ./setup.sh update
+
+          # Count files after update
+          after_count=$(tail -n +2 .coding-guideline-manifest.txt | grep -v '^$' | wc -l)
+
+          if [ "$before_count" -ne "$after_count" ]; then
+            echo "ERROR: File count changed after update"
+            echo "Before: $before_count"
+            echo "After: $after_count"
+            exit 1
+          fi
+
+          echo "✓ Update preserves file count ($after_count files)"
+          rm -rf /tmp/test-update-count
+
+      - name: Test install-update-install cycle
+        run: |
+          echo "Testing install-update-install cycle..."
+          mkdir -p /tmp/test-cycle
+          cd /tmp/test-cycle
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+
+          # First install
+          ./setup.sh install
+          files_after_install=$(tail -n +2 .coding-guideline-manifest.txt | grep -v '^$' | wc -l)
+
+          # Update
+          ./setup.sh update
+          files_after_update=$(tail -n +2 .coding-guideline-manifest.txt | grep -v '^$' | wc -l)
+
+          # Second install (should still work)
+          ./setup.sh install
+          files_after_second_install=$(tail -n +2 .coding-guideline-manifest.txt | grep -v '^$' | wc -l)
+
+          if [ "$files_after_install" -ne "$files_after_update" ] || [ "$files_after_update" -ne "$files_after_second_install" ]; then
+            echo "ERROR: File counts inconsistent through cycle"
+            echo "After install: $files_after_install"
+            echo "After update: $files_after_update"
+            echo "After second install: $files_after_second_install"
+            exit 1
+          fi
+
+          echo "✓ Install-update-install cycle works correctly"
+          rm -rf /tmp/test-cycle
 
       - name: Cleanup
         if: always()
