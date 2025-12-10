@@ -286,6 +286,12 @@ remove_files() {
         if [ -d "$SUBMODULE_PATH" ]; then
             rm -rf "$SUBMODULE_PATH"
         fi
+        # Clean up .gitmodules if it's empty or only contains whitespace
+        if [ -f ".gitmodules" ]; then
+            if ! grep -q '\[submodule' .gitmodules 2>/dev/null; then
+                rm -f .gitmodules
+            fi
+        fi
         echo -e "${GREEN}✓ Submodule removed${NC}"
     fi
 
