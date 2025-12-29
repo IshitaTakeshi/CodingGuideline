@@ -150,7 +150,6 @@ jobs:
             ".github/workflows/check-pr-title.yml"
             ".github/workflows/labeler.yml"
             ".github/workflows/release-drafter.yml"
-            ".github/workflows/test-setup-script.yml"
             ".github/ISSUE_TEMPLATE/bug_report.md"
             ".github/ISSUE_TEMPLATE/feature_request.md"
             ".github/pull_request_template.md"
@@ -175,7 +174,6 @@ jobs:
             ".github/workflows/check-pr-title.yml"
             ".github/workflows/labeler.yml"
             ".github/workflows/release-drafter.yml"
-            ".github/workflows/test-setup-script.yml"
             ".github/labeler.yml"
             ".github/release-drafter.yml"
           )

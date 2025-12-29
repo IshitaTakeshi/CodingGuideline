@@ -113,6 +113,10 @@ install_files() {
         for file in "$SUBMODULE_PATH/.github/workflows/"*; do
             if [ -f "$file" ]; then
                 filename=$(basename "$file")
+                # Skip test workflow - only needed in CodingGuideline repo
+                if [ "$filename" == "test-setup-script.yml" ]; then
+                    continue
+                fi
                 copy_with_tracking "$file" ".github/workflows/$filename" "$VERSION"
             fi
         done
