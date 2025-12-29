@@ -13,6 +13,14 @@ A reusable coding guideline repository that provides standardized development pr
 
 ## Quick Start
 
+Run the following command from your project root:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/IshitaTakeshi/CodingGuideline/main/setup.sh | bash
+```
+
+Alternatively, you can download and run the script manually:
+
 1. Download the setup script from the [GitHub repository](https://github.com/IshitaTakeshi/CodingGuideline)
 2. Run the script from your project root:
 
