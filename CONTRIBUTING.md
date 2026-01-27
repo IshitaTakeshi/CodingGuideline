@@ -35,10 +35,11 @@ Develop locally. Since changes will be squash merged, commit messages during wor
 
 ### Step 4: Create a Pull Request (PR)
 Create a PR on GitHub.
-* **Title**: Must strictly follow **[Naming Convention](#3-naming-convention-and-semver-conventional-commits)** (checked by CI).
-* **Body**: Include `Closes #123` to link to the Issue. Describe changes, screenshots, and test methods.
+* **Title**: Must strictly follow **[Naming Convention](#4-naming-convention-and-semver-conventional-commits)** (checked by CI).
+* **Body**: Use the PR template to provide complete context. See **[PR Description Best Practices](#pr-description-best-practices)** below.
 * **Labels**: Automatically assigned based on branch name.
     * ⚠️ **For breaking changes**: The `major` label is automatically assigned when the PR title contains `!`.
+* **Draft PRs**: If your work is not ready for review, create a Draft PR. This signals to reviewers that the code is still in progress and allows early feedback without formal review.
 
 ### Step 5: Review & Merge
 * CI (Lint PR, Tests) must pass.
@@ -51,7 +52,39 @@ Create a PR on GitHub.
 
 ---
 
-## 3. Naming Convention and SemVer (Conventional Commits)
+## 3. PR Description Best Practices
+
+A good PR tells the story of your change: not just *what* changed, but *why* it changed and *how* to verify it.
+
+### Key Principles
+
+* **Keep PRs Focused**: Each PR should address a single concern. Don't mix unrelated changes (e.g., a bug fix with a large refactor). Smaller PRs are easier to review and less risky to merge.
+* **Provide Context**: Explain the problem you're solving. The Issue link provides tracking, but reviewers benefit from understanding the "why" directly in the PR.
+* **Be Specific with Test Steps**: Write exact steps that a reviewer can follow to verify your changes. Avoid vague instructions like "test the feature."
+
+### PR Template Sections
+
+| Section | Purpose | Required |
+| :--- | :--- | :---: |
+| **Related Issue** | Links PR to the tracking Issue for traceability | Yes |
+| **Context** | Explains why this change is needed | Yes |
+| **Changes** | High-level summary of what was modified | Yes |
+| **Type of Change** | Helps reviewers understand the scope and risk | Yes |
+| **Test Steps** | Step-by-step verification instructions | Yes |
+| **Screenshots** | Visual proof for UI changes (Before/After) | If applicable |
+| **Checklist** | Self-review confirmation | Yes |
+| **Review Focus** | Guides reviewers to areas needing attention | Optional |
+
+### Breaking Changes
+
+When your PR title includes `!` (indicating a breaking change), provide additional context in the PR body:
+* What existing behavior will change
+* Migration steps for users
+* Why the breaking change is necessary
+
+---
+
+## 4. Naming Convention and SemVer (Conventional Commits)
 
 Pull Request titles must follow the **Conventional Commits** format.
 
@@ -111,7 +144,7 @@ The `major` label will be automatically added when the PR is created.
 
 ---
 
-## 4. Automation Setup (for Maintainers)
+## 5. Automation Setup (for Maintainers)
 
 This project uses the following CI configurations to assist with guideline compliance:
 
@@ -121,7 +154,7 @@ This project uses the following CI configurations to assist with guideline compl
 
 ---
 
-## 5. Release Process
+## 6. Release Process
 
 This project uses **[Release Drafter](https://github.com/release-drafter/release-drafter)** to semi-automate the release process.
 
