@@ -106,6 +106,19 @@ git clone --recurse-submodules <your-project-url>
 git submodule update --init --recursive
 ```
 
+### Claude Configuration for Derivative Repositories
+
+If you use Claude Code in your derivative repository, you can add a `CLAUDE.md` file to automatically fetch the submodule when it's missing. Create a `CLAUDE.md` file in your project root with the following content:
+
+~~~markdown
+If the `.coding-guideline` directory is missing or empty, run:
+```bash
+git submodule update --init --recursive
+```
+~~~
+
+This instructs Claude to check for the submodule and initialize it if needed, which handles the common case of cloning without `--recursive`.
+
 ## License
 
 This project is licensed under CC0 1.0 Universal - see the [LICENSE](LICENSE) file for details.
