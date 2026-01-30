@@ -134,7 +134,90 @@ When your PR title includes `!` (indicating a breaking change), provide addition
 
 ---
 
-## 5. Naming Convention and SemVer (Conventional Commits)
+## 5. Commit Message Best Practices
+
+While this project uses **Squash & Merge** (making PR titles the final commit message), writing descriptive commit messages during development helps reviewers understand your changes and makes debugging easier.
+
+### Structure
+
+```text
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+* **Subject line**: What changed (≤50 characters, imperative mood, no period)
+* **Body**: Why it changed and what impact it has (wrap at 72 characters)
+* **Footer**: Issue references (`Closes #123`) and co-author attribution
+
+### The "Why" Is Essential
+
+Every commit should answer these questions:
+
+| Question | Purpose |
+| :--- | :--- |
+| **What problem existed?** | The motivation for the change |
+| **What did you change?** | The subject line (what) |
+| **Why this approach?** | Alternatives considered, trade-offs made |
+| **What is the impact?** | Before vs. after behavior |
+
+### Examples from This Repository
+
+**❌ Missing context (actual commit):**
+```text
+fix: update workflow to use renamed issue template files (#65)
+
+Closes #64
+```
+*Problem: Doesn't explain why files were renamed or what broke.*
+
+**✅ With proper context:**
+```text
+fix: update workflow to use renamed issue template files (#65)
+
+The issue template files were renamed from bug_report.md to fix.md
+and feature_request.md to feature.md to align with the Conventional
+Commits type names. The GitHub workflow still referenced the old
+filenames, causing template validation to fail.
+
+Closes #64
+```
+
+**❌ Missing motivation (actual commit):**
+```text
+ci: remove paths filter from test workflow for reliable status checks (#67)
+
+Closes #66
+```
+*Problem: Doesn't explain what was unreliable or why.*
+
+**✅ With proper context:**
+```text
+ci: remove paths filter from test workflow for reliable status checks (#67)
+
+The paths filter skipped test runs when only documentation files
+changed. However, GitHub requires all status checks to run before
+merging. Skipped checks were blocking PRs because they never
+reported a status.
+
+Removing the filter ensures tests always run and report status,
+even if the test itself has nothing new to verify.
+
+Closes #66
+```
+
+### Quick Checklist
+
+Before committing, verify your message answers:
+- [ ] What problem does this solve?
+- [ ] Why was this change necessary?
+- [ ] What is different now compared to before?
+
+---
+
+## 6. Naming Convention and SemVer (Conventional Commits)
 
 Pull Request titles must follow the **Conventional Commits** format.
 
@@ -194,7 +277,7 @@ The `major` label will be automatically added when the PR is created.
 
 ---
 
-## 6. Automation Setup (for Maintainers)
+## 7. Automation Setup (for Maintainers)
 
 This project uses the following CI configurations to assist with guideline compliance:
 
@@ -204,7 +287,7 @@ This project uses the following CI configurations to assist with guideline compl
 
 ---
 
-## 7. Release Process
+## 8. Release Process
 
 This project uses **[Release Drafter](https://github.com/release-drafter/release-drafter)** to semi-automate the release process.
 
