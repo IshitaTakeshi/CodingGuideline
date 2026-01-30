@@ -1,0 +1,49 @@
+# Strict Python Ruff Configuration
+# Derivative repositories can extend this with:
+#   extend = ".coding-guideline/ruff.toml"
+
+# Target Python version
+target-version = "py310"
+
+# Line length
+line-length = 88
+
+[lint]
+# Enable strict rule sets
+select = [
+    "E",    # pycodestyle errors
+    "F",    # Pyflakes
+    "I",    # isort (Import sorting)
+    "N",    # pep8-naming
+    "UP",   # pyupgrade (Modernize syntax)
+    "B",    # flake8-bugbear (Likely bugs)
+    "A",    # flake8-builtins (Don't shadow builtins)
+    "C4",   # flake8-comprehensions
+    "RET",  # flake8-return (Enforces "No Else" / Early Return)
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking (Move imports to type-checking blocks)
+    "PL",   # Pylint (Complexity & standard rules)
+    "RUF",  # Ruff-specific rules (Unused imports, etc.)
+]
+
+ignore = [
+    "PLR2004", # Magic values comparison (sometimes necessary in math SDKs)
+]
+
+[lint.pylint]
+# Approx proxies for strict line limits:
+# 15 lines ~ 7-10 statements
+max-statements = 10
+# 50 lines class ~ 7 public methods + 3-4 attributes
+max-public-methods = 7
+# No branches allowed basically means very low complexity
+max-branches = 4
+
+[lint.mccabe]
+# Cyclomatic complexity. Keep it extremely low to force atomicity.
+max-complexity = 4
+
+[lint.pep8-naming]
+# Enforce standard naming, but "No Abbreviations" relies on human review
+# or a custom dictionary plugin.
+classmethod-decorators = ["classmethod"]
