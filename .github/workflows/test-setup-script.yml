@@ -75,12 +75,12 @@ jobs:
       - name: Verify issue templates were copied
         working-directory: /tmp/test-project
         run: |
-          if [ ! -f ".github/ISSUE_TEMPLATE/bug_report.md" ]; then
-            echo "ERROR: bug_report.md not found"
+          if [ ! -f ".github/ISSUE_TEMPLATE/fix.md" ]; then
+            echo "ERROR: fix.md not found"
             exit 1
           fi
-          if [ ! -f ".github/ISSUE_TEMPLATE/feature_request.md" ]; then
-            echo "ERROR: feature_request.md not found"
+          if [ ! -f ".github/ISSUE_TEMPLATE/feature.md" ]; then
+            echo "ERROR: feature.md not found"
             exit 1
           fi
           echo "✓ Issue templates copied successfully"
@@ -150,8 +150,8 @@ jobs:
             ".github/workflows/check-pr-title.yml"
             ".github/workflows/labeler.yml"
             ".github/workflows/release-drafter.yml"
-            ".github/ISSUE_TEMPLATE/bug_report.md"
-            ".github/ISSUE_TEMPLATE/feature_request.md"
+            ".github/ISSUE_TEMPLATE/fix.md"
+            ".github/ISSUE_TEMPLATE/feature.md"
             ".github/pull_request_template.md"
             ".github/labeler.yml"
             ".github/release-drafter.yml"
@@ -195,7 +195,7 @@ jobs:
         working-directory: /tmp/test-project
         run: |
           md_files=(
-            ".github/ISSUE_TEMPLATE/bug_report.md"
+            ".github/ISSUE_TEMPLATE/fix.md"
             ".github/pull_request_template.md"
             "CONTRIBUTING.md"
           )
