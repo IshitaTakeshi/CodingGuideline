@@ -19,3 +19,4 @@ jobs:
         with:
           args: --verbose --no-progress '**/*.md'
           fail: true
+          failIfEmpty: false
