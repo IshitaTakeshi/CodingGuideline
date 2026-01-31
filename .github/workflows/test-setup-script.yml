@@ -108,15 +108,6 @@ jobs:
           fi
           echo "✓ Release drafter configuration copied successfully"
 
-      - name: Verify CONTRIBUTING.md was copied
-        working-directory: /tmp/test-project
-        run: |
-          if [ ! -f "CONTRIBUTING.md" ]; then
-            echo "ERROR: CONTRIBUTING.md not found"
-            exit 1
-          fi
-          echo "✓ CONTRIBUTING.md copied successfully"
-
       - name: Verify manifest file was created
         working-directory: /tmp/test-project
         run: |
@@ -151,7 +142,6 @@ jobs:
             ".github/pull_request_template.md"
             ".github/labeler.yml"
             ".github/release-drafter.yml"
-            "CONTRIBUTING.md"
           )
 
           for file in "${expected_files[@]}"; do
@@ -192,8 +182,8 @@ jobs:
         run: |
           md_files=(
             ".github/ISSUE_TEMPLATE/fix.md"
+            ".github/ISSUE_TEMPLATE/feature.md"
             ".github/pull_request_template.md"
-            "CONTRIBUTING.md"
           )
 
           for file in "${md_files[@]}"; do
@@ -261,11 +251,6 @@ jobs:
           # Verify tracked files are removed
           if [ -f ".github/workflows/labeler.yml" ]; then
             echo "ERROR: Tracked file still exists: .github/workflows/labeler.yml"
-            exit 1
-          fi
-
-          if [ -f "CONTRIBUTING.md" ]; then
-            echo "ERROR: Tracked file still exists: CONTRIBUTING.md"
             exit 1
           fi
 
@@ -369,7 +354,6 @@ jobs:
           # Create pre-existing files
           mkdir -p .github/workflows
           echo "# Original content" > .github/workflows/labeler.yml
-          echo "# Original CONTRIBUTING" > CONTRIBUTING.md
 
           cp /tmp/test-project/setup.sh .
           ./setup.sh
@@ -531,7 +515,7 @@ jobs:
           fi
 
           # Verify files are still installed
-          if [ ! -f "CONTRIBUTING.md" ]; then
+          if [ ! -f ".github/workflows/labeler.yml" ]; then
             echo "ERROR: Files should still be installed"
             exit 1
           fi
@@ -633,7 +617,7 @@ jobs:
           version=$(grep "^version: " .coding-guideline-manifest.txt | cut -d' ' -f2)
 
           # Check all 3 lines in a Markdown file
-          test_file="CONTRIBUTING.md"
+          test_file=".github/pull_request_template.md"
 
           line1=$(head -n 1 "$test_file")
           line2=$(head -n 2 "$test_file" | tail -n 1)
@@ -681,7 +665,7 @@ jobs:
           yaml_version=$(head -n 1 .github/workflows/labeler.yml | sed -n 's/.*version: \([^)]*\).*/\1/p')
 
           # Extract version from a Markdown file header
-          md_version=$(head -n 1 CONTRIBUTING.md | sed -n 's/.*version: \([^)]*\).*/\1/p')
+          md_version=$(head -n 1 .github/pull_request_template.md | sed -n 's/.*version: \([^)]*\).*/\1/p')
 
           if [ "$manifest_version" != "$yaml_version" ]; then
             echo "ERROR: YAML header version doesn't match manifest"
