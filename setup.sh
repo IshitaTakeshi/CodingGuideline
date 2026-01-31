@@ -157,22 +157,15 @@ install_files() {
         echo -e "${GREEN}✓ Release drafter configuration copied${NC}"
     fi
 
-    # Copy CONTRIBUTING.md
-    if [ -f "$SUBMODULE_PATH/CONTRIBUTING.md" ]; then
-        echo -e "${YELLOW}Copying CONTRIBUTING.md...${NC}"
-        copy_with_tracking "$SUBMODULE_PATH/CONTRIBUTING.md" "CONTRIBUTING.md" "$VERSION"
-        echo -e "${GREEN}✓ CONTRIBUTING.md copied${NC}"
-    fi
-
     echo ""
     echo -e "${GREEN}================================${NC}"
     echo -e "${GREEN}Setup complete!${NC}"
     echo ""
     echo "Next steps:"
-    echo "1. Review the copied files in .github/ and CONTRIBUTING.md"
+    echo "1. Review the copied files in .github/"
     echo "2. Customize them for your project if needed"
     echo "3. Commit the changes:"
-    echo "   git add .github/ CONTRIBUTING.md $SUBMODULE_PATH $MANIFEST_FILE"
+    echo "   git add .github/ $SUBMODULE_PATH $MANIFEST_FILE"
     echo "   git commit -m 'chore: add coding guidelines'"
     echo ""
     echo "To update guidelines: ./setup.sh update"
