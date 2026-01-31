@@ -88,8 +88,7 @@ The manifest file (`.coding-guideline-manifest.txt`) tracks all copied files:
 version: abc1234567890...
 .github/workflows/labeler.yml
 .github/workflows/release-drafter.yml
-.github/ISSUE_TEMPLATE/feature.md
-.github/ISSUE_TEMPLATE/fix.md
+.github/ISSUE_TEMPLATE/bug_report.md
 .github/pull_request_template.md
 ```
 
