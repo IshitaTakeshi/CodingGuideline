@@ -32,7 +32,6 @@ chmod +x setup.sh
 The script will:
 - Add this repository as a git submodule (or update if already added)
 - Copy GitHub workflows, issue templates, PR template, labeler and release drafter configurations
-- Copy CONTRIBUTING.md to your project root
 - Add comment headers to all copied files indicating they are managed by CodingGuideline
 - Create a manifest file (`.coding-guideline-manifest.txt`) to track all copied files
 
@@ -89,9 +88,9 @@ The manifest file (`.coding-guideline-manifest.txt`) tracks all copied files:
 version: abc1234567890...
 .github/workflows/labeler.yml
 .github/workflows/release-drafter.yml
-.github/ISSUE_TEMPLATE/bug_report.md
+.github/ISSUE_TEMPLATE/feature.md
+.github/ISSUE_TEMPLATE/fix.md
 .github/pull_request_template.md
-CONTRIBUTING.md
 ```
 
 ### Cloning a Project with This Submodule
@@ -108,16 +107,18 @@ git submodule update --init --recursive
 
 ### Claude Configuration for Derivative Repositories
 
-If you use Claude Code in your derivative repository, you can add a `CLAUDE.md` file to automatically fetch the submodule when it's missing. Create a `CLAUDE.md` file in your project root with the following content:
+If you use Claude Code in your derivative repository, you can add a `CLAUDE.md` file to automatically fetch the submodule when it's missing and reference the contributing guide. Create a `CLAUDE.md` file in your project root with the following content:
 
 ~~~markdown
 If the `.coding-guideline` directory is missing or empty, run:
 ```bash
 git submodule update --init --recursive
 ```
+
+See `.coding-guideline/CONTRIBUTING.md` for the coding and git guidelines.
 ~~~
 
-This instructs Claude to check for the submodule and initialize it if needed, which handles the common case of cloning without `--recursive`.
+This instructs Claude to check for the submodule and initialize it if needed, and directs it to the contributing guide for development practices.
 
 ## License
 
