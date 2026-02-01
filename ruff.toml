@@ -24,11 +24,28 @@ select = [
     "TCH",  # flake8-type-checking (Move imports to type-checking blocks)
     "PL",   # Pylint (Complexity & standard rules)
     "RUF",  # Ruff-specific rules (Unused imports, etc.)
+    "D",    # pydocstyle (Docstring enforcement - PYTHON.md Section 5)
+    "ARG",  # flake8-unused-arguments
+    "ERA",  # eradicate (No commented-out code)
+    "FBT",  # flake8-boolean-trap (Clearer function signatures)
+    "PIE",  # flake8-pie (Misc. lints for cleaner code)
+    "S",    # flake8-bandit (Security checks)
+    "PT",   # flake8-pytest-style (Test consistency)
 ]
 
 ignore = [
     "PLR2004", # Magic values comparison (sometimes necessary in math SDKs)
 ]
+
+[lint.per-file-ignores]
+# Private modules don't need docstrings per PYTHON.md
+"_*.py" = ["D"]
+# Test files: allow assert (S101), skip docstrings
+"tests/*" = ["D", "S101"]
+
+[lint.pydocstyle]
+# Match PYTHON.md Section 5: Ruff lacks native Sphinx, PEP257 is closest
+convention = "pep257"
 
 [lint.pylint]
 # Approx proxies for strict line limits:
