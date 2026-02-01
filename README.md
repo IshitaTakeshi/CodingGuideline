@@ -107,18 +107,19 @@ git submodule update --init --recursive
 
 ### Claude Configuration for Derivative Repositories
 
-If you use Claude Code in your derivative repository, you can add a `CLAUDE.md` file to automatically fetch the submodule when it's missing and reference the contributing guide. Create a `CLAUDE.md` file in your project root with the following content:
+If you use Claude Code in your derivative repository, copy the template file to your project root:
 
-~~~markdown
-If the `.coding-guideline` directory is missing or empty, run:
 ```bash
-git submodule update --init --recursive
+cp .coding-guideline/templates/CLAUDE.md ./CLAUDE.md
 ```
 
-See `.coding-guideline/CONTRIBUTING.md` for the coding and git guidelines.
-~~~
+Then customize it for your project:
+1. Uncomment the language-specific guidelines that apply (e.g., Python)
+2. Add any project-specific guidelines in the designated section
 
-This instructs Claude to check for the submodule and initialize it if needed, and directs it to the contributing guide for development practices.
+See [`templates/CLAUDE.md`](templates/CLAUDE.md) for the full template.
+
+This instructs Claude to check for the submodule and initialize it if needed, and directs it to the appropriate guidelines for development practices.
 
 ## License
 
