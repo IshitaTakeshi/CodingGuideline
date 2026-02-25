@@ -282,6 +282,45 @@ jobs:
 
           echo "✓ Reinstall after remove works correctly"
 
+      # CLAUDE.md template tests
+      - name: Verify CLAUDE.md was created on install
+        working-directory: /tmp/test-project
+        run: |
+          if [ ! -f "CLAUDE.md" ]; then
+            echo "ERROR: CLAUDE.md was not created during install"
+            exit 1
+          fi
+          echo "✓ CLAUDE.md created on install"
+
+      - name: Verify CLAUDE.md is not tracked in manifest
+        working-directory: /tmp/test-project
+        run: |
+          if grep -q "^CLAUDE.md$" .coding-guideline-manifest.txt; then
+            echo "ERROR: CLAUDE.md should not be tracked in manifest"
+            exit 1
+          fi
+          echo "✓ CLAUDE.md is not tracked in manifest"
+
+      - name: Verify CLAUDE.md has no managed-by header
+        working-directory: /tmp/test-project
+        run: |
+          if head -n 1 CLAUDE.md | grep -q "Managed by CodingGuideline"; then
+            echo "ERROR: CLAUDE.md should not have a managed-by header"
+            exit 1
+          fi
+          echo "✓ CLAUDE.md has no managed-by header"
+
+      - name: Test CLAUDE.md is not overwritten on reinstall
+        working-directory: /tmp/test-project
+        run: |
+          echo "# Custom project content" > CLAUDE.md
+          ./setup.sh install
+          if ! grep -q "# Custom project content" CLAUDE.md; then
+            echo "ERROR: CLAUDE.md was overwritten during reinstall"
+            exit 1
+          fi
+          echo "✓ CLAUDE.md preserved on reinstall"
+
       - name: Display test project structure
         working-directory: /tmp/test-project
         run: |
