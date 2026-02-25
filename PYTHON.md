@@ -16,6 +16,7 @@ We adhere to **Object Calisthenics** rules to force modularity.
 * **File Sizing:** If a file exceeds 100 lines, it must be split. A file should contain only one class or a small set of tightly coupled functions.
 * **Function Sizing:** The 15-line limit is absolute.
     * *Exceptions:* None. Even `try-except` blocks must be concise. If error handling is complex, delegate the logic inside the `try` block to a separate private function.
+    * *When a function is too long:* Extract a sub-function. Never bundle parameters into a wrapper type to shrink the signature. See [Section 7](#7-complexity-reduction-no-artificial-grouping).
 
 ## 2. Control Flow: The "No Else" Rule
 
@@ -84,7 +85,69 @@ def connect_to_database(connection_string: str) -> None:
 * **Sorting:** Automated via Ruff/Isort.
 * **Unused Imports:** Strictly forbidden. The build will fail if detected.
 
-## 7. Tooling
+## 7. Complexity Reduction: No Artificial Grouping
+
+When a function exceeds size or argument limits, **decompose its logic** into
+smaller functions — do not bundle its parameters into a wrapper type.
+
+### The Anti-Pattern
+
+Creating a `TypedDict`, `dataclass`, or `NamedTuple` purely to fit a long
+signature into one argument does not reduce complexity. It displaces it. The
+same operations still happen on the same data; only the surface area changed.
+
+```python
+# Wrong: SubplotConfig exists only to hide three arguments.
+# The function is no simpler; callers now bear the construction cost.
+@dataclass
+class SubplotConfig:
+    accessor: Callable[[Result], NDArray[np.float64]]
+    ylabel: str
+    title: str
+
+def _configure_subplot(axis: Axes, config: SubplotConfig, ...) -> None:
+    ...
+```
+
+```python
+# Correct: extract a sub-function with a single, nameable responsibility.
+# _plot_series can be understood, tested, and reused independently.
+def _plot_series(
+    axis: Axes, label: str, accessor: Callable[...], result: Result
+) -> None:
+    ...
+
+def _configure_subplot(
+    axis: Axes, accessor: Callable[...], ylabel: str, title: str, ...
+) -> None:
+    for label, result in results.items():
+        _plot_series(axis, label, accessor, result)
+    _decorate_axis(axis, ylabel, title)
+```
+
+### Litmus Test for a Legitimate Type
+
+A `TypedDict`, `dataclass`, or `NamedTuple` is legitimate only if **all three**
+conditions hold:
+
+1. **Domain-named:** Its name comes from the problem domain, not from code
+   structure. Red flags: `Config`, `Options`, `Params`, `Data`, `Info`.
+2. **Restriction-independent:** It would exist even with no function size limit.
+3. **Single entity:** Its fields describe one thing, not a collection of
+   unrelated arguments that happen to go to the same function.
+
+| ✅ Legitimate | ❌ Artificial |
+| :--- | :--- |
+| `SuspensionParameters` — a named concept in vehicle dynamics | `PlotStyle` — two matplotlib kwargs bundled to shrink a signature |
+| `SimulationResult` — natural return type shared across module boundaries | `SubplotConfig` — three unrelated fields with only one consumer |
+
+### When a Function Is Still Too Long
+
+Ask: **"What distinct step can I name?"** Extract that named step into a private
+function. The size limit exists to force you to name every concept — not to
+encourage hiding concepts inside wrapper types.
+
+## 8. Tooling
 
 This repository provides configuration files for automated enforcement.
 
