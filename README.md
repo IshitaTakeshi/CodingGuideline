@@ -105,22 +105,6 @@ git clone --recurse-submodules <your-project-url>
 git submodule update --init --recursive
 ```
 
-### Claude Configuration for Derivative Repositories
-
-If you use Claude Code in your derivative repository, copy the template file to your project root:
-
-```bash
-cp .coding-guideline/templates/CLAUDE.md ./CLAUDE.md
-```
-
-Then customize it for your project:
-1. Uncomment the language-specific guidelines that apply (e.g., Python)
-2. Add any project-specific guidelines in the designated section
-
-See [`templates/CLAUDE.md`](templates/CLAUDE.md) for the full template.
-
-This instructs Claude to check for the submodule and initialize it if needed, and directs it to the appropriate guidelines for development practices.
-
 ## License
 
 This project is licensed under CC0 1.0 Universal - see the [LICENSE](LICENSE) file for details.
