@@ -71,6 +71,25 @@ copy_with_tracking() {
     add_to_manifest "$dest"
 }
 
+# Copy CLAUDE.md template if it doesn't already exist (not tracked in manifest)
+copy_claude_md() {
+    local src="$1"
+
+    if [ -f "CLAUDE.md" ]; then
+        echo -e "${YELLOW}CLAUDE.md already exists, skipping${NC}"
+        return
+    fi
+
+    if [ ! -f "$src" ]; then
+        echo -e "${YELLOW}CLAUDE.md template not found, skipping${NC}"
+        return
+    fi
+
+    echo -e "${YELLOW}Copying CLAUDE.md template...${NC}"
+    cp "$src" "CLAUDE.md"
+    echo -e "${GREEN}✓ CLAUDE.md created (customize it for your project)${NC}"
+}
+
 # Install/setup command
 install_files() {
     echo -e "${GREEN}Coding Guideline Setup${NC}"
@@ -157,15 +176,18 @@ install_files() {
         echo -e "${GREEN}✓ Release drafter configuration copied${NC}"
     fi
 
+    # Copy CLAUDE.md template (not tracked in manifest - users customize this file)
+    copy_claude_md "$SUBMODULE_PATH/templates/CLAUDE.md"
+
     echo ""
     echo -e "${GREEN}================================${NC}"
     echo -e "${GREEN}Setup complete!${NC}"
     echo ""
     echo "Next steps:"
     echo "1. Review the copied files in .github/"
-    echo "2. Customize them for your project if needed"
+    echo "2. Customize CLAUDE.md for your project"
     echo "3. Commit the changes:"
-    echo "   git add .github/ $SUBMODULE_PATH $MANIFEST_FILE"
+    echo "   git add .github/ CLAUDE.md $SUBMODULE_PATH $MANIFEST_FILE"
     echo "   git commit -m 'chore: add coding guidelines'"
     echo ""
     echo "To update guidelines: ./setup.sh update"
