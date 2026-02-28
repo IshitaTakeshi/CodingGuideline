@@ -451,6 +451,9 @@ jobs:
           cp /tmp/test-project/setup.sh .
           ./setup.sh
 
+          # Count files before corruption
+          expected_count=$(wc -l < .coding-guideline-manifest.txt)
+
           # Corrupt the manifest (remove version line)
           tail -n +2 .coding-guideline-manifest.txt > .coding-guideline-manifest.txt.tmp
           mv .coding-guideline-manifest.txt.tmp .coding-guideline-manifest.txt
@@ -458,13 +461,20 @@ jobs:
           # Update should still work - it will add version line
           ./setup.sh update
 
+          # Verify file count wasn't affected by the update dropping a path
+          actual_count=$(wc -l < .coding-guideline-manifest.txt)
+          if [ "$expected_count" -ne "$actual_count" ]; then
+            echo "ERROR: File count changed from $expected_count to $actual_count after recovering corrupted manifest"
+            exit 1
+          fi
+
           # Verify version line was added back
           if ! grep -q "^version: " .coding-guideline-manifest.txt; then
             echo "ERROR: Version line should be restored"
             exit 1
           fi
 
-          echo "✓ Update handles corrupted manifest"
+          echo "✓ Update handles corrupted manifest without data loss"
           rm -rf /tmp/test-corrupt-manifest
 
       - name: Test update without manifest file
