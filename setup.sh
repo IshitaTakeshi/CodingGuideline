@@ -244,7 +244,7 @@ update_files() {
     # Update version in manifest
     {
         echo "version: ${VERSION}"
-        tail -n +2 "$MANIFEST_FILE"
+        grep -v "^version: " "$MANIFEST_FILE" || true
     } > "${MANIFEST_FILE}.tmp"
     mv "${MANIFEST_FILE}.tmp" "$MANIFEST_FILE"
 
