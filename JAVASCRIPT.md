@@ -63,7 +63,7 @@ function calculateStatus(value) {
 
 ## 4. Type Safety
 
-* **Strict Mode:** All code must run strictly (`"use strict";` or natively via ES Modules) and pass TypeScript strict checks (or strict JSDoc via `tsc --noEmit`).
+* **Strict Mode:** All code must run strictly (`"use strict";` or natively via ES Modules) and pass TypeScript strict checks (or strict JSDoc via `tsc --noEmit`). JavaScript-only projects using JSDoc must add `"allowJs": true` and `"checkJs": true` to their `tsconfig.json` to enable type checking.
 * **No `any`:** The use of `any` (or implicit any) is forbidden. If a type is truly dynamic, use `unknown` and narrow it with type guards, or use Generics (`<T>`).
 * **Signatures:** Every function (public or private) must have explicit parameter and return types defined via TypeScript or JSDoc.
 
@@ -88,7 +88,7 @@ async function connectToDatabase(connectionString) {
 
 ## 6. Imports
 
-* **Sorting:** Automated via ESLint (`eslint-plugin-import` or `simple-import-sort`).
+* **Sorting:** Can be automated via ESLint (e.g., `eslint-plugin-import` or `simple-import-sort`), but requires a plugin configured in the consuming project — not included in the shared `eslint.config.js`.
 * **Unused Imports:** Strictly forbidden. The build will fail if detected.
 * **Paths:** Prefer absolute alias paths (e.g., `@/components/`) over deep relative paths (`../../../components/`).
 
@@ -106,9 +106,9 @@ Creating a TypeScript `interface`, `type`, or JSDoc `@typedef` purely to fit a l
 
 /**
  * @typedef {Object} SubplotConfig
- * @property {Function} accessor
  * @property {string} ylabel
  * @property {string} title
+ * @property {string} color
  */
 
 function _configureSubplot(axis, config) {
@@ -120,13 +120,13 @@ function _configureSubplot(axis, config) {
 ```javascript
 // Correct: extract a sub-function with a single, nameable responsibility.
 // _plotSeries can be understood, tested, and reused independently.
-function _plotSeries(axis, label, accessor, result) {
+function _plotSeries(axis, label, result) {
     // ...
 }
 
-function _configureSubplot(axis, accessor, ylabel, title) {
+function _configureSubplot(axis, ylabel, title) {
     for (const [label, result] of Object.entries(results)) {
-        _plotSeries(axis, label, accessor, result);
+        _plotSeries(axis, label, result);
     }
     _decorateAxis(axis, ylabel, title);
 }
@@ -182,3 +182,10 @@ TypeScript supports configuration inheritance via `extends`. Use the shared base
   }
 }
 ```
+
+> **Minimum version:** The base config uses `"moduleResolution": "bundler"`, which requires **TypeScript ≥ 5.0**.
+
+> **Browser projects:** The base `lib` targets ES2020 only. Add `"DOM"` and `"DOM.Iterable"` in your project's `tsconfig.json`:
+> ```json
+> { "compilerOptions": { "lib": ["ES2020", "DOM", "DOM.Iterable"] } }
+> ```
