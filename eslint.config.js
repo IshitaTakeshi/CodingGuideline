@@ -34,7 +34,7 @@ const sharedRules = {
   "max-depth": ["error", 2],
 };
 
-/** @type {import("eslint").Linter.Config[]} */
+/** @type {import("eslint").Linter.FlatConfig[]} */
 export default [
   // JavaScript
   {
@@ -50,7 +50,7 @@ export default [
 
   // TypeScript
   {
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts", "**/*.mtsx", "**/*.ctsx"],
     languageOptions: {
       parser: tseslint.parser,
     },
