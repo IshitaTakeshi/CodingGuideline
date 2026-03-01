@@ -321,6 +321,159 @@ jobs:
           fi
           echo "✓ CLAUDE.md preserved on reinstall"
 
+      # JavaScript setup command tests
+      - name: Test javascript command - basic setup
+        working-directory: /tmp/test-project
+        run: |
+          echo "Testing javascript sub-command..."
+          ./setup.sh javascript
+
+          if [ ! -f "eslint.config.js" ]; then
+            echo "ERROR: eslint.config.js not created"
+            exit 1
+          fi
+
+          if [ ! -f "tsconfig.json" ]; then
+            echo "ERROR: tsconfig.json not created"
+            exit 1
+          fi
+
+          if ! node -e "const p = require('./package.json'); process.exit(p.type === 'module' ? 0 : 1)"; then
+            echo "ERROR: package.json missing type=module"
+            exit 1
+          fi
+
+          echo "✓ JavaScript setup command works"
+
+      - name: Test javascript command - eslint.config.js content
+        working-directory: /tmp/test-project
+        run: |
+          if ! grep -q "coding-guideline/eslint.config.js" eslint.config.js; then
+            echo "ERROR: eslint.config.js does not extend from submodule config"
+            exit 1
+          fi
+          echo "✓ eslint.config.js extends from submodule config"
+
+      - name: Test javascript command - tsconfig.json content
+        working-directory: /tmp/test-project
+        run: |
+          if ! grep -q "coding-guideline/tsconfig.base.json" tsconfig.json; then
+            echo "ERROR: tsconfig.json does not extend from submodule base config"
+            exit 1
+          fi
+          echo "✓ tsconfig.json extends from submodule base config"
+
+      - name: Test javascript command - files tracked in manifest
+        working-directory: /tmp/test-project
+        run: |
+          if ! grep -q "^eslint.config.js$" .coding-guideline-manifest.txt; then
+            echo "ERROR: eslint.config.js not tracked in manifest"
+            exit 1
+          fi
+          if ! grep -q "^tsconfig.json$" .coding-guideline-manifest.txt; then
+            echo "ERROR: tsconfig.json not tracked in manifest"
+            exit 1
+          fi
+          echo "✓ JS files tracked in manifest"
+
+      - name: Test javascript command - does not overwrite existing files
+        run: |
+          echo "Testing javascript command does not overwrite existing files..."
+          mkdir -p /tmp/test-js-no-overwrite
+          cd /tmp/test-js-no-overwrite
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh install
+
+          # Create pre-existing JS config files
+          echo "// custom eslint config" > eslint.config.js
+          echo '{"custom": true}' > tsconfig.json
+
+          # Run javascript command
+          ./setup.sh javascript
+
+          # Verify custom content was preserved
+          if ! grep -q "// custom eslint config" eslint.config.js; then
+            echo "ERROR: eslint.config.js was overwritten"
+            exit 1
+          fi
+          if ! grep -q '"custom": true' tsconfig.json; then
+            echo "ERROR: tsconfig.json was overwritten"
+            exit 1
+          fi
+
+          echo "✓ Existing JS files not overwritten"
+          rm -rf /tmp/test-js-no-overwrite
+
+      - name: Test javascript command - requires submodule
+        run: |
+          echo "Testing javascript command without submodule..."
+          mkdir -p /tmp/test-js-no-submodule
+          cd /tmp/test-js-no-submodule
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+          cp /tmp/test-project/setup.sh .
+
+          if ./setup.sh javascript 2>&1 | grep -q "not found"; then
+            echo "✓ Correctly requires submodule to be present"
+          else
+            echo "ERROR: Should fail when submodule is absent"
+            exit 1
+          fi
+
+          rm -rf /tmp/test-js-no-submodule
+
+      - name: Test remove cleans up JS files
+        run: |
+          echo "Testing remove cleans up JS files..."
+          mkdir -p /tmp/test-js-remove
+          cd /tmp/test-js-remove
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+          cp /tmp/test-project/setup.sh .
+          ./setup.sh install
+          ./setup.sh javascript
+
+          # Verify JS files exist before remove
+          if [ ! -f "eslint.config.js" ] || [ ! -f "tsconfig.json" ]; then
+            echo "ERROR: JS files should exist before remove"
+            exit 1
+          fi
+
+          # Remove (y for files, n for submodule)
+          echo -e "y\nn" | ./setup.sh remove
+
+          if [ -f "eslint.config.js" ]; then
+            echo "ERROR: eslint.config.js not removed"
+            exit 1
+          fi
+          if [ -f "tsconfig.json" ]; then
+            echo "ERROR: tsconfig.json not removed"
+            exit 1
+          fi
+
+          echo "✓ Remove cleans up JS files"
+          rm -rf /tmp/test-js-remove
+
+      - name: Test invalid command includes javascript in usage
+        working-directory: /tmp/test-project
+        run: |
+          if ./setup.sh invalid_command 2>&1 | grep -q "javascript"; then
+            echo "✓ Usage message includes javascript command"
+          else
+            echo "ERROR: Usage message should list javascript command"
+            exit 1
+          fi
+
       - name: Display test project structure
         working-directory: /tmp/test-project
         run: |

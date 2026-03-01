@@ -320,10 +320,84 @@ remove_files() {
     echo "Don't forget to commit the changes!"
 }
 
+# JavaScript/TypeScript setup command
+setup_javascript() {
+    echo -e "${GREEN}JavaScript/TypeScript Environment Setup${NC}"
+    echo "================================"
+
+    # Check submodule is present (install must be run first)
+    if [ ! -d "$SUBMODULE_PATH" ]; then
+        echo -e "${RED}Error: $SUBMODULE_PATH not found. Run './setup.sh install' first.${NC}"
+        exit 1
+    fi
+
+    # Check node and npm are available
+    if ! command -v node >/dev/null 2>&1; then
+        echo -e "${RED}Error: node is not installed. Please install Node.js first.${NC}"
+        exit 1
+    fi
+    if ! command -v npm >/dev/null 2>&1; then
+        echo -e "${RED}Error: npm is not installed. Please install npm first.${NC}"
+        exit 1
+    fi
+
+    # Ensure package.json has "type": "module" (creates package.json if absent)
+    echo -e "${YELLOW}Configuring package.json...${NC}"
+    npm pkg set type="module"
+    echo -e "${GREEN}✓ package.json configured with type=\"module\"${NC}"
+
+    # Install typescript-eslint
+    echo -e "${YELLOW}Installing typescript-eslint...${NC}"
+    npm install --save-dev typescript-eslint
+    echo -e "${GREEN}✓ typescript-eslint installed${NC}"
+
+    # Create eslint.config.js if absent
+    if [ -f "eslint.config.js" ]; then
+        echo -e "${YELLOW}Warning: eslint.config.js already exists, skipping${NC}"
+    else
+        cat > eslint.config.js << 'EOF'
+import baseConfig from "./.coding-guideline/eslint.config.js";
+export default [...baseConfig];
+EOF
+        add_to_manifest "eslint.config.js"
+        echo -e "${GREEN}✓ eslint.config.js created${NC}"
+    fi
+
+    # Create tsconfig.json if absent
+    if [ -f "tsconfig.json" ]; then
+        echo -e "${YELLOW}Warning: tsconfig.json already exists, skipping${NC}"
+    else
+        cat > tsconfig.json << 'EOF'
+{
+  "extends": "./.coding-guideline/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist"
+  }
+}
+EOF
+        add_to_manifest "tsconfig.json"
+        echo -e "${GREEN}✓ tsconfig.json created${NC}"
+    fi
+
+    echo ""
+    echo -e "${GREEN}================================${NC}"
+    echo -e "${GREEN}JavaScript/TypeScript setup complete!${NC}"
+    echo ""
+    echo "Next steps:"
+    echo "1. Run 'npx eslint .' to lint your code"
+    echo "2. Run 'npx tsc --noEmit' to type-check"
+    echo "3. Commit the changes:"
+    echo "   git add package.json package-lock.json eslint.config.js tsconfig.json $MANIFEST_FILE"
+    echo "   git commit -m 'chore: add JavaScript/TypeScript tooling'"
+}
+
 # Main command dispatcher
 case "${1:-install}" in
     install)
         install_files
+        ;;
+    javascript)
+        setup_javascript
         ;;
     update)
         update_files
@@ -332,10 +406,11 @@ case "${1:-install}" in
         remove_files
         ;;
     *)
-        echo "Usage: $0 {install|update|remove}"
+        echo "Usage: $0 {install|javascript|update|remove}"
         echo ""
         echo "Commands:"
         echo "  install (default) - Install coding guidelines"
+        echo "  javascript        - Set up JavaScript/TypeScript tooling"
         echo "  update            - Update tracked files to latest version"
         echo "  remove            - Remove all tracked files"
         exit 1
