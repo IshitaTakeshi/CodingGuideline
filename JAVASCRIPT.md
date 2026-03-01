@@ -17,6 +17,7 @@ We adhere to **Object Calisthenics** rules to force modularity.
 * **Function Sizing:** The 15-line limit is absolute.
     * *Exceptions:* None. Even `try...catch` blocks must be concise. If error handling is complex, delegate the logic inside the `try` block to a separate private function.
     * *When a function is too long:* Extract a sub-function. Never bundle parameters into a single "options" object just to shrink the signature. See [Section 7](#7-complexity-reduction-no-artificial-grouping).
+* **Parameter Limit:** Functions may accept at most **3 parameters**. When a function needs more, decompose its logic — do not bundle parameters into an "options" object. See [Section 7](#7-complexity-reduction-no-artificial-grouping).
 
 ## 2. Control Flow: The "No Else" Rule
 
@@ -110,7 +111,7 @@ Creating a TypeScript `interface`, `type`, or JSDoc `@typedef` purely to fit a l
  * @property {string} title
  */
 
-function _configureSubplot(axis, config, ...) {
+function _configureSubplot(axis, config) {
     // ...
 }
 
@@ -123,7 +124,7 @@ function _plotSeries(axis, label, accessor, result) {
     // ...
 }
 
-function _configureSubplot(axis, accessor, ylabel, title, ...) {
+function _configureSubplot(axis, accessor, ylabel, title) {
     for (const [label, result] of Object.entries(results)) {
         _plotSeries(axis, label, accessor, result);
     }
@@ -155,7 +156,13 @@ This repository provides configuration files for automated enforcement.
 
 ### ESLint (Linter & Formatter)
 
-Derivative repositories can extend the shared ESLint configuration:
+The shared config supports both JavaScript and TypeScript. Install the required peer dependency first:
+
+```sh
+npm install --save-dev typescript-eslint
+```
+
+Then extend it in your project:
 
 ```js
 // eslint.config.js
