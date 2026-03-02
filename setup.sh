@@ -359,8 +359,7 @@ setup_javascript() {
 import baseConfig from "./.coding-guideline/eslint.config.js";
 export default [...baseConfig];
 EOF
-        add_to_manifest "eslint.config.js"
-        echo -e "${GREEN}✓ eslint.config.js created${NC}"
+        echo -e "${GREEN}✓ eslint.config.js created (user-owned, not tracked in manifest)${NC}"
     fi
 
     # Create tsconfig.json if absent
@@ -375,19 +374,21 @@ EOF
   }
 }
 EOF
-        add_to_manifest "tsconfig.json"
-        echo -e "${GREEN}✓ tsconfig.json created${NC}"
+        echo -e "${GREEN}✓ tsconfig.json created (user-owned, not tracked in manifest)${NC}"
     fi
 
     echo ""
     echo -e "${GREEN}================================${NC}"
     echo -e "${GREEN}JavaScript/TypeScript setup complete!${NC}"
     echo ""
+    echo "Note: eslint.config.js and tsconfig.json are user-owned files."
+    echo "They will not be updated or removed by 'setup.sh update/remove'."
+    echo ""
     echo "Next steps:"
     echo "1. Run 'npx eslint .' to lint your code"
     echo "2. Run 'npx tsc --noEmit' to type-check"
     echo "3. Commit the changes:"
-    echo "   git add package.json package-lock.json eslint.config.js tsconfig.json $MANIFEST_FILE"
+    echo "   git add package.json package-lock.json eslint.config.js tsconfig.json"
     echo "   git commit -m 'chore: add JavaScript/TypeScript tooling'"
 }
 

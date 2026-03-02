@@ -363,18 +363,18 @@ jobs:
           fi
           echo "✓ tsconfig.json extends from submodule base config"
 
-      - name: Test javascript command - files tracked in manifest
+      - name: Test javascript command - files not tracked in manifest
         working-directory: /tmp/test-project
         run: |
-          if ! grep -q "^eslint.config.js$" .coding-guideline-manifest.txt; then
-            echo "ERROR: eslint.config.js not tracked in manifest"
+          if grep -q "^eslint.config.js$" .coding-guideline-manifest.txt; then
+            echo "ERROR: eslint.config.js should not be tracked in manifest (user-owned)"
             exit 1
           fi
-          if ! grep -q "^tsconfig.json$" .coding-guideline-manifest.txt; then
-            echo "ERROR: tsconfig.json not tracked in manifest"
+          if grep -q "^tsconfig.json$" .coding-guideline-manifest.txt; then
+            echo "ERROR: tsconfig.json should not be tracked in manifest (user-owned)"
             exit 1
           fi
-          echo "✓ JS files tracked in manifest"
+          echo "✓ JS files are not tracked in manifest (user-owned)"
 
       - name: Test javascript command - does not overwrite existing files
         run: |
@@ -429,9 +429,9 @@ jobs:
 
           rm -rf /tmp/test-js-no-submodule
 
-      - name: Test remove cleans up JS files
+      - name: Test remove preserves user-owned JS files
         run: |
-          echo "Testing remove cleans up JS files..."
+          echo "Testing remove preserves user-owned JS files..."
           mkdir -p /tmp/test-js-remove
           cd /tmp/test-js-remove
           git init
@@ -452,16 +452,17 @@ jobs:
           # Remove (y for files, n for submodule)
           echo -e "y\nn" | ./setup.sh remove
 
-          if [ -f "eslint.config.js" ]; then
-            echo "ERROR: eslint.config.js not removed"
+          # JS files are user-owned and should NOT be removed
+          if [ ! -f "eslint.config.js" ]; then
+            echo "ERROR: eslint.config.js should be preserved (user-owned)"
             exit 1
           fi
-          if [ -f "tsconfig.json" ]; then
-            echo "ERROR: tsconfig.json not removed"
+          if [ ! -f "tsconfig.json" ]; then
+            echo "ERROR: tsconfig.json should be preserved (user-owned)"
             exit 1
           fi
 
-          echo "✓ Remove cleans up JS files"
+          echo "✓ Remove preserves user-owned JS files"
           rm -rf /tmp/test-js-remove
 
       - name: Test invalid command includes javascript in usage
