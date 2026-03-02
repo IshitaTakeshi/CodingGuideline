@@ -154,7 +154,21 @@ Ask: **"What distinct step can I name?"** Extract that named step into a private
 
 This repository provides configuration files for automated enforcement.
 
-### ESLint (Linter & Formatter)
+### Automated Setup (Recommended)
+
+Run the following command from your project root after installing the submodule:
+
+```sh
+./setup.sh javascript
+```
+
+This installs `typescript-eslint` and creates `eslint.config.js` and `tsconfig.json` extending the shared configs. See the [README](README.md) for details.
+
+### Manual Setup
+
+If you prefer to configure tooling by hand:
+
+**ESLint (Linter & Formatter)**
 
 The shared config supports both JavaScript and TypeScript. Install the required peer dependency first:
 
@@ -170,7 +184,7 @@ import baseConfig from "./.coding-guideline/eslint.config.js";
 export default [...baseConfig];
 ```
 
-### TypeScript (Type Checker)
+**TypeScript (Type Checker)**
 
 TypeScript supports configuration inheritance via `extends`. Use the shared base config in `tsconfig.json`:
 

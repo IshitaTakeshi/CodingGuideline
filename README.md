@@ -50,6 +50,24 @@ This will:
 - Refresh all tracked files with the latest content
 - Update comment headers with the new version
 
+### Setting Up JavaScript/TypeScript Tooling
+
+To bootstrap ESLint and TypeScript in a JavaScript or TypeScript project:
+
+```bash
+./setup.sh javascript
+```
+
+Prerequisites: `node` and `npm` must be installed. The guideline submodule must already be present (run `./setup.sh` first).
+
+This will:
+- Create `package.json` with `"type": "module"` if one does not exist, or add the field if it does
+- Install `typescript-eslint` as a dev dependency
+- Create `eslint.config.js` extending the shared ESLint config, if absent
+- Create `tsconfig.json` extending the shared TypeScript base config, if absent
+
+`eslint.config.js` and `tsconfig.json` are **user-owned** — they are not tracked in the manifest and will not be touched by `update` or `remove`. Customize them freely.
+
 ### Removing the Guidelines
 
 To remove all guideline files from your project:
