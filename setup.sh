@@ -343,6 +343,9 @@ setup_javascript() {
 
     # Ensure package.json has "type": "module" (creates package.json if absent)
     echo -e "${YELLOW}Configuring package.json...${NC}"
+    if [ ! -f "package.json" ]; then
+        npm init -y
+    fi
     npm pkg set type="module"
     echo -e "${GREEN}✓ package.json configured with type=\"module\"${NC}"
 
