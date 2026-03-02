@@ -345,6 +345,19 @@ jobs:
 
           echo "✓ JavaScript setup command works"
 
+      - name: Test javascript command - typescript-eslint installed
+        working-directory: /tmp/test-project
+        run: |
+          if ! node -e "const p = require('./package.json'); process.exit(p.devDependencies && p.devDependencies['typescript-eslint'] ? 0 : 1)"; then
+            echo "ERROR: typescript-eslint not listed in devDependencies"
+            exit 1
+          fi
+          if ! npm ls typescript-eslint --depth=0 2>/dev/null | grep -q "typescript-eslint"; then
+            echo "ERROR: typescript-eslint not found in node_modules"
+            exit 1
+          fi
+          echo "✓ typescript-eslint installed as dev dependency"
+
       - name: Test javascript command - eslint.config.js content
         working-directory: /tmp/test-project
         run: |
