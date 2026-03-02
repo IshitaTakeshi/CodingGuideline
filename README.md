@@ -58,7 +58,7 @@ To bootstrap ESLint and TypeScript in a JavaScript or TypeScript project:
 ./setup.sh javascript
 ```
 
-Prerequisites: `node` and `npm` must be installed. The guideline submodule must already be present (run `./setup.sh` first).
+Prerequisites: `node` and `npm` must be installed. The guideline submodule must already be present (run `./setup.sh install` first).
 
 This will:
 - Create `package.json` with `"type": "module"` if one does not exist, or add the field if it does
