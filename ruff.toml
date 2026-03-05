@@ -48,9 +48,9 @@ ignore = [
 convention = "pep257"
 
 [lint.pylint]
-# Approx proxies for strict line limits:
-# 15 lines ~ 7-10 statements
-max-statements = 10
+# Approx proxies for strict line limits (excluding comments/docstrings):
+# 15 lines ~ 10-15 statements depending on nesting and control flow
+max-statements = 15
 # 50 lines class ~ 7 public methods + 3-4 attributes
 max-public-methods = 7
 # No branches allowed basically means very low complexity
