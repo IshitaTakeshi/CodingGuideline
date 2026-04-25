@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "github-scripts"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["requests>=2.32"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.20.2",
+    "pytest>=8",
+    "types-requests>=2.33.0.20260408",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

@@ -10,6 +10,7 @@ jobs:
     name: Assign version label based on commit analysis
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
       issues: write
     steps:
@@ -17,9 +18,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
 
+      - uses: astral-sh/setup-uv@v5
+
       - name: Determine and assign version label
         run: >-
-          python .github/scripts/label-milestone-pr.py
+          uv run python .github/scripts/label-milestone-pr.py
           --token "${{ secrets.GITHUB_TOKEN }}"
           --repo "${{ github.repository }}"
           --pr-number "${{ github.event.pull_request.number }}"

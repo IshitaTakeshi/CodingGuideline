@@ -6,6 +6,7 @@ on:
 
 jobs:
   assign-major-label:
+    if: "!startsWith(github.head_ref, 'milestone/')"
     name: Auto-assign major label for breaking changes
     runs-on: ubuntu-latest
     permissions:

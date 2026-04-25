@@ -1,34 +1,17 @@
-"""Assigns a version label to a milestone PR based on its commits.
-
-Parses the Conventional Commits subject of each commit in the PR and assigns
-the highest-impact version label: major > feature > fix/performance/revert.
-If no versioned commits are found, no label is assigned (no version bump).
-"""
-
 import argparse
-import re
-from enum import StrEnum
 
-import requests
-
-
-class Label(StrEnum):
-    MAJOR = "major"
-    FEATURE = "feature"
-    FIX = "fix"
-    PERFORMANCE = "performance"
-    REVERT = "revert"
+from github_scripts.label_milestone_pr import (
+    VERSION_LABELS,
+    add_label,
+    determine_label,
+    get_commits,
+    get_current_labels,
+    make_headers,
+    remove_label,
+)
 
 
-GITHUB_API_URL = "https://api.github.com"
-
-BREAKING_RE = re.compile(r"^[a-z]+(\([^)]+\))?!:")
-TYPE_RE = re.compile(r"^([a-z]+)(?:\([^)]+\))?!?:")
-PATCH_TYPES = {Label.FIX, Label.PERFORMANCE, Label.REVERT}
-VERSION_LABELS = {Label.MAJOR, Label.FEATURE, Label.FIX, Label.PERFORMANCE, Label.REVERT}
-
-
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--token", required=True)
     parser.add_argument("--repo", required=True)
@@ -36,82 +19,34 @@ def parse_args():
     return parser.parse_args()
 
 
-def make_headers(token):
-    return {
-        "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
+def main() -> None:
+    """Assign the most significant version label to a milestone PR.
 
+    Fetches all commits in the PR, determines the highest-impact version label
+    (major > feature > patch > none), removes any stale version labels, and
+    assigns the new one. If no versioned commits are found, no label is assigned.
 
-def get_commits(repo, pr_number, headers):
-    commits = []
-    page = 1
-    while True:
-        resp = requests.get(
-            f"{GITHUB_API_URL}/repos/{repo}/pulls/{pr_number}/commits",
-            headers=headers,
-            params={"per_page": 100, "page": page},
-        )
-        resp.raise_for_status()
-        batch = resp.json()
-        if not batch:
-            break
-        commits.extend(batch)
-        page += 1
-    return commits
+    The workflow triggers on every push to the PR, so this function may run
+    multiple times. Stale version labels from prior runs are always removed
+    before the new label is assigned.
 
+    Examples
+    --------
+    1. First run, one feature commit:
+         Labels before : (none)
+         Commits       : feature: add login
+         Labels after  : feature
 
-def _update_label(label, priority, type_):
-    if type_ == Label.FEATURE and priority > 1:
-        return Label.FEATURE, 1
-    if type_ in PATCH_TYPES and priority > 2:
-        return type_, 2
-    return label, priority
+    2. Developer pushes a breaking change; workflow re-runs:
+         Labels before : feature
+         Commits       : feature: add login, fix!: breaking auth change
+         Labels after  : major
 
-
-def determine_label(commits):
-    label = None
-    priority = float("inf")
-    for commit in commits:
-        subject = commit["commit"]["message"].split("\n")[0]
-        if BREAKING_RE.match(subject):
-            return Label.MAJOR
-        m = TYPE_RE.match(subject)
-        if not m:
-            continue
-        label, priority = _update_label(label, priority, m.group(1))
-    return label
-
-
-def get_current_labels(repo, pr_number, headers):
-    resp = requests.get(
-        f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels",
-        headers=headers,
-    )
-    resp.raise_for_status()
-    return [entry["name"] for entry in resp.json()]
-
-
-def remove_label(repo, pr_number, name, headers):
-    resp = requests.delete(
-        f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels/{name}",
-        headers=headers,
-    )
-    if resp.status_code not in (200, 404):
-        resp.raise_for_status()
-
-
-def add_label(repo, pr_number, name, headers):
-    resp = requests.post(
-        f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels",
-        headers=headers,
-        json={"labels": [name]},
-    )
-    resp.raise_for_status()
-
-
-def main():
+    3. Developer pushes only a non-versioned commit; label is re-applied from history:
+         Labels before : major
+         Commits       : fix!: breaking auth change, documentation: update README
+         Labels after  : major
+    """
     args = parse_args()
     headers = make_headers(args.token)
 
@@ -121,7 +56,6 @@ def main():
     for existing in get_current_labels(args.repo, args.pr_number, headers):
         if existing in VERSION_LABELS:
             remove_label(args.repo, args.pr_number, existing, headers)
-            print(f"Removed label: {existing}")
 
     if not label:
         print("No version label assigned (no versioned commits found)")
