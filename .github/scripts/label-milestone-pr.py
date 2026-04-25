@@ -7,13 +7,23 @@ If no versioned commits are found, no label is assigned (no version bump).
 
 import argparse
 import re
+from enum import StrEnum
 
 import requests
 
+
+class Label(StrEnum):
+    MAJOR = "major"
+    FEATURE = "feature"
+    FIX = "fix"
+    PERFORMANCE = "performance"
+    REVERT = "revert"
+
+
 BREAKING_RE = re.compile(r"^[a-z]+(\([^)]+\))?!:")
 TYPE_RE = re.compile(r"^([a-z]+)(?:\([^)]+\))?!?:")
-PATCH_TYPES = {"fix", "performance", "revert"}
-VERSION_LABELS = {"major", "feature", "fix", "performance", "revert"}
+PATCH_TYPES = {Label.FIX, Label.PERFORMANCE, Label.REVERT}
+VERSION_LABELS = {Label.MAJOR, Label.FEATURE, Label.FIX, Label.PERFORMANCE, Label.REVERT}
 
 
 def parse_args():
