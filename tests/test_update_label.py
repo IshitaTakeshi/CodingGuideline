@@ -1,6 +1,6 @@
 import pytest
 
-from github_scripts.label_milestone_pr import PATCH_TYPES, Label, _update_label
+from github_scripts.label_milestone_pr import PATCH_LABELS, Label, _update_label
 
 
 class TestUpdateLabel:
@@ -36,8 +36,8 @@ class TestUpdateLabel:
         assert priority == float("inf")
 
 
-class TestPatchTypesStrEnumCompatibility:
+class TestPatchLabelsStrEnumCompatibility:
     def test_plain_strings_are_members(self):
-        assert "fix" in PATCH_TYPES
-        assert "performance" in PATCH_TYPES
-        assert "revert" in PATCH_TYPES
+        assert "fix" in PATCH_LABELS
+        assert "performance" in PATCH_LABELS
+        assert "revert" in PATCH_LABELS

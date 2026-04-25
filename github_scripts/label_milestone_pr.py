@@ -23,7 +23,7 @@ GITHUB_API_URL = "https://api.github.com"
 
 BREAKING_RE = re.compile(r"^[a-z]+(\([^)]+\))?!:")
 TYPE_RE = re.compile(r"^([a-z]+)(?:\([^)]+\))?!?:")
-PATCH_TYPES = {Label.FIX, Label.PERFORMANCE, Label.REVERT}
+PATCH_LABELS = {Label.FIX, Label.PERFORMANCE, Label.REVERT}
 VERSION_LABELS = {Label.MAJOR, Label.FEATURE, Label.FIX, Label.PERFORMANCE, Label.REVERT}
 
 
@@ -80,7 +80,7 @@ def _update_label(label, priority, type_):
     """
     if type_ == Label.FEATURE and priority > 1:
         return Label.FEATURE, 1
-    if type_ in PATCH_TYPES and priority > 2:
+    if type_ in PATCH_LABELS and priority > 2:
         return type_, 2
     return label, priority
 
