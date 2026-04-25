@@ -20,6 +20,8 @@ class Label(StrEnum):
     REVERT = "revert"
 
 
+GITHUB_API_URL = "https://api.github.com"
+
 BREAKING_RE = re.compile(r"^[a-z]+(\([^)]+\))?!:")
 TYPE_RE = re.compile(r"^([a-z]+)(?:\([^)]+\))?!?:")
 PATCH_TYPES = {Label.FIX, Label.PERFORMANCE, Label.REVERT}
@@ -47,7 +49,7 @@ def get_commits(repo, pr_number, headers):
     page = 1
     while True:
         resp = requests.get(
-            f"https://api.github.com/repos/{repo}/pulls/{pr_number}/commits",
+            f"{GITHUB_API_URL}/repos/{repo}/pulls/{pr_number}/commits",
             headers=headers,
             params={"per_page": 100, "page": page},
         )
@@ -80,7 +82,7 @@ def determine_label(commits):
 
 def get_current_labels(repo, pr_number, headers):
     resp = requests.get(
-        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels",
+        f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels",
         headers=headers,
     )
     resp.raise_for_status()
@@ -89,7 +91,7 @@ def get_current_labels(repo, pr_number, headers):
 
 def remove_label(repo, pr_number, name, headers):
     resp = requests.delete(
-        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels/{name}",
+        f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels/{name}",
         headers=headers,
     )
     if resp.status_code not in (200, 404):
@@ -98,7 +100,7 @@ def remove_label(repo, pr_number, name, headers):
 
 def add_label(repo, pr_number, name, headers):
     resp = requests.post(
-        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels",
+        f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels",
         headers=headers,
         json={"labels": [name]},
     )
