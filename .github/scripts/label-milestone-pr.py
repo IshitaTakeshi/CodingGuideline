@@ -56,7 +56,6 @@ def main():
     for existing in get_current_labels(args.repo, args.pr_number, headers):
         if existing in VERSION_LABELS:
             remove_label(args.repo, args.pr_number, existing, headers)
-            print(f"Removed label: {existing}")
 
     if not label:
         print("No version label assigned (no versioned commits found)")
