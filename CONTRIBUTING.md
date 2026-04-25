@@ -19,26 +19,29 @@ When you find a task or bug, create an Issue. Choose the appropriate template:
 
 ### Step 2: Create a Branch
 Create a working branch from `main`.
-**Naming convention: `prefix/issue-number-description`**
+**Naming convention: `prefix/<issue-number>-<description>`**
 
 * **prefix**: Corresponds to the Type (see below): `feature/`, `fix/`, `documentation/`, etc.
-* **issue-number**: The corresponding Issue number (required)
-* **description**: Brief description in kebab-case (lowercase letters and hyphens)
+* **`<issue-number>`**: The corresponding Issue number (required)
+* **`<description>`**: Brief description in kebab-case (lowercase letters and hyphens)
 
 **Good examples:**
 * ✅ `feature/123-login-page` (Login feature for Issue #123)
 * ✅ `fix/45-auth-token-bug` (Bug fix for Issue #45)
 * ✅ `documentation/67-api-guide` (Documentation update for Issue #67)
 
+> **Exception**: When organizing work under a Milestone, create feature/fix branches from the milestone branch instead of `main`. See [Section 3: Milestone Branch Workflow](#3-milestone-branch-workflow).
+
 ### Step 3: Implementation & Push
 Develop locally. Since changes will be squash merged, commit messages during work are flexible (e.g., `wip`, `fix`).
 
 ### Step 4: Create a Pull Request (PR)
 Create a PR on GitHub.
-* **Title**: Must strictly follow **[Naming Convention](#5-naming-convention-and-semver-conventional-commits)** (checked by CI).
-* **Body**: Use the PR template to provide complete context. See **[PR Description Best Practices](#4-pr-description-best-practices)** below.
+* **Title**: Must strictly follow **[Naming Convention](#7-naming-convention-and-semver-conventional-commits)** (checked by CI).
+* **Body**: Use the PR template to provide complete context. See **[PR Description Best Practices](#5-pr-description-best-practices)** below.
 * **Labels**: Automatically assigned based on branch name.
     * ⚠️ **For breaking changes**: The `major` label is automatically assigned when the PR title contains `!`.
+    * ⚠️ **For milestone branches**: The version label (`major`, `feature`, `fix`, etc.) is automatically determined by CI, which analyzes the commits included in the milestone branch.
 * **Draft PRs**: If your work is not ready for review, create a Draft PR. This signals to reviewers that the code is still in progress and allows early feedback without formal review.
 
 ### Step 5: Review & Merge
@@ -52,7 +55,33 @@ Create a PR on GitHub.
 
 ---
 
-## 3. Issue Description Best Practices
+## 3. Milestone Branch Workflow
+
+For projects with multiple independent concepts or large feature sets, use **milestone branches** to group related work under a single GitHub Milestone.
+
+### Structure
+
+```
+main
+└── milestone/<milestone-number>-<description>       ← one per GitHub Milestone
+    ├── feature/<issue-number>-<description>
+    └── fix/<issue-number>-<description>
+```
+
+* **`milestone-number`** is the **GitHub Milestone number**.
+* The concept or goal is written in the **GitHub Milestone's description** — not in any file on the branch.
+* Feature/fix branch naming follows the existing convention (`feature/<issue-number>-<description>`). Issue numbers are unique project-wide and are independent of milestone numbers.
+
+### Lifecycle
+
+1. **Open** a GitHub Milestone and describe the concept/goal in its description.
+2. **Create** `milestone/<milestone-number>-<description>` from `main`.
+3. **Work**: open Issues under the Milestone, create `feature/<issue-number>-...` branches from the milestone branch, and PR back into it.
+4. **Close**: when all Issues are resolved, open a PR from the milestone branch into `main`. CI automatically assigns the version label by analyzing the commits in the milestone branch. After merge, close the GitHub Milestone.
+
+---
+
+## 4. Issue Description Best Practices
 
 A good issue is **self-documenting**: anyone should be able to understand it without prior context, even the author returning months later.
 
@@ -102,7 +131,7 @@ A good issue is **self-documenting**: anyone should be able to understand it wit
 
 ---
 
-## 4. PR Description Best Practices
+## 5. PR Description Best Practices
 
 A good PR tells the story of your change: not just *what* changed, but *why* it changed and *how* to verify it.
 
@@ -134,7 +163,7 @@ When your PR title includes `!` (indicating a breaking change), provide addition
 
 ---
 
-## 5. Commit Message Best Practices
+## 6. Commit Message Best Practices
 
 While this project uses **Squash & Merge** (making PR titles the final commit message), writing descriptive commit messages during development helps reviewers understand your changes and makes debugging easier.
 
@@ -217,7 +246,7 @@ Before committing, verify your message answers:
 
 ---
 
-## 6. Naming Convention and SemVer (Conventional Commits)
+## 7. Naming Convention and SemVer (Conventional Commits)
 
 Pull Request titles must follow the **Conventional Commits** format.
 
@@ -277,7 +306,7 @@ The `major` label will be automatically added when the PR is created.
 
 ---
 
-## 7. Automation Setup (for Maintainers)
+## 8. Automation Setup (for Maintainers)
 
 This project uses the following CI configurations to assist with guideline compliance:
 
@@ -287,7 +316,7 @@ This project uses the following CI configurations to assist with guideline compl
 
 ---
 
-## 8. Release Process
+## 9. Release Process
 
 This project uses **[Release Drafter](https://github.com/release-drafter/release-drafter)** to semi-automate the release process.
 

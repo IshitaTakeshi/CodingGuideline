@@ -1,3 +1,5 @@
+milestone:
+  - head-branch: ['^milestone/']
 feature:
   - head-branch: ['^feature/']
 fix:
