@@ -14,10 +14,17 @@ class TestUpdateLabel:
         assert label == Label.FEATURE
         assert priority == 1
 
-    @pytest.mark.parametrize("commit_type", ["fix", "performance", "revert"])
-    def test_patch_type_sets_patch_label(self, commit_type: str) -> None:
+    @pytest.mark.parametrize(
+        ("commit_type", "expected_label"),
+        [
+            ("fix", Label.FIX),
+            ("performance", Label.PERFORMANCE),
+            ("revert", Label.REVERT),
+        ],
+    )
+    def test_patch_type_sets_patch_label(self, commit_type: str, expected_label: Label) -> None:
         label, priority = _update_label(None, float("inf"), commit_type)
-        assert label == commit_type
+        assert label == expected_label
         assert priority == 2
 
     def test_patch_does_not_override_feature(self):

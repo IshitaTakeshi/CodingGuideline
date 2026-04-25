@@ -5,6 +5,7 @@ import requests
 
 from github_scripts.label_milestone_pr import (
     GITHUB_API_URL,
+    REQUEST_TIMEOUT,
     add_label,
     get_commits,
     get_current_labels,
@@ -73,6 +74,7 @@ class TestGetCommits:
             f"{GITHUB_API_URL}/repos/{REPO}/pulls/{PR}/commits",
             headers=HEADERS,
             params={"per_page": 100, "page": 1},
+            timeout=REQUEST_TIMEOUT,
         )
 
     def test_raises_on_http_error(self):
@@ -123,6 +125,7 @@ class TestRemoveLabel:
         mock_delete.assert_called_once_with(
             f"{GITHUB_API_URL}/repos/{REPO}/issues/{PR}/labels/feature",
             headers=HEADERS,
+            timeout=REQUEST_TIMEOUT,
         )
 
 
@@ -143,4 +146,5 @@ class TestAddLabel:
             f"{GITHUB_API_URL}/repos/{REPO}/issues/{PR}/labels",
             headers=HEADERS,
             json={"labels": ["feature"]},
+            timeout=REQUEST_TIMEOUT,
         )

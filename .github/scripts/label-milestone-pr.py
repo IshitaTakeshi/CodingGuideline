@@ -11,7 +11,7 @@ from github_scripts.label_milestone_pr import (
 )
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--token", required=True)
     parser.add_argument("--repo", required=True)
@@ -19,7 +19,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     """Assign the most significant version label to a milestone PR.
 
     Fetches all commits in the PR, determines the highest-impact version label

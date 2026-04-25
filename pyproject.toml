@@ -9,7 +9,11 @@ requires-python = ">=3.11"
 dependencies = ["requests>=2.32"]
 
 [dependency-groups]
-dev = ["pytest>=8"]
+dev = [
+    "mypy>=1.20.2",
+    "pytest>=8",
+    "types-requests>=2.33.0.20260408",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

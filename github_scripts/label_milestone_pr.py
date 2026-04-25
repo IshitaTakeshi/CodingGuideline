@@ -9,9 +9,12 @@ so that the release tooling can apply the correct SemVer bump.
 
 Behavior
 --------
-Each commit subject is parsed for Conventional Commits syntax and mapped to
-a version label. The label priority and its version impact are defined in
-``.github/release-drafter.yml`` under ``version-resolver``.
+Each commit subject is parsed for Conventional Commits syntax. Only commits
+that trigger a SemVer bump (``major``, ``feature``, ``fix``, ``performance``,
+``revert``) are considered; non-versioning types such as ``docs`` and
+``refactor`` are intentionally skipped. The label priority and its version
+impact are defined in ``.github/release-drafter.yml`` under
+``version-resolver``.
 
 The label corresponding to the highest priority found across all commits is
 assigned. If no versioned commits are found, no label is assigned and the
@@ -20,6 +23,7 @@ version is not bumped.
 
 import re
 from enum import StrEnum
+from typing import TypedDict
 
 import requests
 
@@ -32,6 +36,14 @@ class Label(StrEnum):
     REVERT = "revert"
 
 
+class _CommitDetails(TypedDict):
+    message: str
+
+
+class GitHubCommit(TypedDict):
+    commit: _CommitDetails
+
+
 GITHUB_API_URL = "https://api.github.com"
 REQUEST_TIMEOUT = 10
 
@@ -41,7 +53,7 @@ PATCH_LABELS = {Label.FIX, Label.PERFORMANCE, Label.REVERT}
 VERSION_LABELS = {Label.MAJOR, Label.FEATURE, Label.FIX, Label.PERFORMANCE, Label.REVERT}
 
 
-def make_headers(token):
+def make_headers(token: str) -> dict[str, str]:
     """Return GitHub API request headers authenticated with the given token.
 
     >>> make_headers("tok")
@@ -54,13 +66,13 @@ def make_headers(token):
     }
 
 
-def get_commits(repo, pr_number, headers):
+def get_commits(repo: str, pr_number: int, headers: dict[str, str]) -> list[GitHubCommit]:
     """Return all commits on a pull request, paginating as needed.
 
     Each element is a GitHub commit object as returned by the REST API.
     Raises requests.HTTPError on a non-2xx response.
     """
-    commits = []
+    commits: list[GitHubCommit] = []
     page = 1
     while True:
         resp = requests.get(
@@ -70,7 +82,7 @@ def get_commits(repo, pr_number, headers):
             timeout=REQUEST_TIMEOUT,
         )
         resp.raise_for_status()
-        batch = resp.json()
+        batch: list[GitHubCommit] = resp.json()
         if not batch:
             break
         commits.extend(batch)
@@ -78,7 +90,9 @@ def get_commits(repo, pr_number, headers):
     return commits
 
 
-def _update_label(label, priority, type_):
+def _update_label(
+    label: Label | None, priority: float, type_: str
+) -> tuple[Label | None, float]:
     """Return an updated (label, priority) pair when a higher-priority type is found.
 
     Priority levels: 1 = feature, 2 = patch (fix/performance/revert).
@@ -96,11 +110,11 @@ def _update_label(label, priority, type_):
     if type_ == Label.FEATURE and priority > 1:
         return Label.FEATURE, 1
     if type_ in PATCH_LABELS and priority > 2:
-        return type_, 2
+        return Label(type_), 2
     return label, priority
 
 
-def determine_label(commits):
+def determine_label(commits: list[GitHubCommit]) -> Label | None:
     """Return the highest-impact version label from a list of GitHub commit objects.
 
     Scans each commit subject line for Conventional Commits syntax.
@@ -121,7 +135,7 @@ def determine_label(commits):
     >>> determine_label([]) is None
     True
     """
-    label = None
+    label: Label | None = None
     priority = float("inf")
     for commit in commits:
         subject = commit["commit"]["message"].split("\n")[0]
@@ -134,7 +148,7 @@ def determine_label(commits):
     return label
 
 
-def get_current_labels(repo, pr_number, headers):
+def get_current_labels(repo: str, pr_number: int, headers: dict[str, str]) -> list[str]:
     """Return the list of label names currently applied to a pull request.
 
     Raises requests.HTTPError on a non-2xx response.
@@ -148,7 +162,7 @@ def get_current_labels(repo, pr_number, headers):
     return [entry["name"] for entry in resp.json()]
 
 
-def remove_label(repo, pr_number, name, headers):
+def remove_label(repo: str, pr_number: int, name: str, headers: dict[str, str]) -> None:
     """Remove a label from a pull request, ignoring 404 if already absent.
 
     Raises requests.HTTPError on any non-2xx response other than 404.
@@ -162,7 +176,7 @@ def remove_label(repo, pr_number, name, headers):
         resp.raise_for_status()
 
 
-def add_label(repo, pr_number, name, headers):
+def add_label(repo: str, pr_number: int, name: str, headers: dict[str, str]) -> None:
     """Add a label to a pull request.
 
     Raises requests.HTTPError on a non-2xx response.
