@@ -18,7 +18,8 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Determine and assign version label
-        run: python .github/scripts/label-milestone-pr.py
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: >-
+          python .github/scripts/label-milestone-pr.py
+          --token "${{ secrets.GITHUB_TOKEN }}"
+          --repo "${{ github.repository }}"
+          --pr-number "${{ github.event.pull_request.number }}"

@@ -5,22 +5,10 @@ the highest-impact version label: major > feature > fix/performance/revert.
 If no versioned commits are found, no label is assigned (no version bump).
 """
 
-import os
+import argparse
 import re
-import sys
 
 import requests
-
-TOKEN = os.environ["GITHUB_TOKEN"]
-REPO = os.environ["GITHUB_REPOSITORY"]
-PR_NUMBER = int(os.environ["PR_NUMBER"])
-
-HEADERS = {
-    "Authorization": f"Bearer {TOKEN}",
-    "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-}
-BASE_URL = f"https://api.github.com/repos/{REPO}"
 
 BREAKING_RE = re.compile(r"^[a-z]+(\([^)]+\))?!:")
 TYPE_RE = re.compile(r"^([a-z]+)(?:\([^)]+\))?!?:")
@@ -28,13 +16,29 @@ PATCH_TYPES = {"fix", "performance", "revert"}
 VERSION_LABELS = {"major", "feature", "fix", "performance", "revert"}
 
 
-def get_commits():
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--token", required=True)
+    parser.add_argument("--repo", required=True)
+    parser.add_argument("--pr-number", type=int, required=True)
+    return parser.parse_args()
+
+
+def make_headers(token):
+    return {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+
+def get_commits(repo, pr_number, headers):
     commits = []
     page = 1
     while True:
         resp = requests.get(
-            f"{BASE_URL}/pulls/{PR_NUMBER}/commits",
-            headers=HEADERS,
+            f"https://api.github.com/repos/{repo}/pulls/{pr_number}/commits",
+            headers=headers,
             params={"per_page": 100, "page": page},
         )
         resp.raise_for_status()
@@ -54,52 +58,60 @@ def determine_label(commits):
         if BREAKING_RE.match(subject):
             return "major"
         m = TYPE_RE.match(subject)
-        if m:
-            type_ = m.group(1)
-            if type_ == "feature" and priority > 1:
-                label, priority = "feature", 1
-            elif type_ in PATCH_TYPES and priority > 2:
-                label, priority = type_, 2
+        if not m:
+            continue
+        type_ = m.group(1)
+        if type_ == "feature" and priority > 1:
+            label, priority = "feature", 1
+        elif type_ in PATCH_TYPES and priority > 2:
+            label, priority = type_, 2
     return label
 
 
-def get_current_labels():
-    resp = requests.get(f"{BASE_URL}/issues/{PR_NUMBER}/labels", headers=HEADERS)
+def get_current_labels(repo, pr_number, headers):
+    resp = requests.get(
+        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels",
+        headers=headers,
+    )
     resp.raise_for_status()
     return [entry["name"] for entry in resp.json()]
 
 
-def remove_label(name):
+def remove_label(repo, pr_number, name, headers):
     resp = requests.delete(
-        f"{BASE_URL}/issues/{PR_NUMBER}/labels/{name}", headers=HEADERS
+        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels/{name}",
+        headers=headers,
     )
     if resp.status_code not in (200, 404):
         resp.raise_for_status()
-    print(f"Removed label: {name}")
 
 
-def add_label(name):
+def add_label(repo, pr_number, name, headers):
     resp = requests.post(
-        f"{BASE_URL}/issues/{PR_NUMBER}/labels",
-        headers=HEADERS,
+        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels",
+        headers=headers,
         json={"labels": [name]},
     )
     resp.raise_for_status()
-    print(f"Assigned label: {name}")
 
 
 def main():
-    commits = get_commits()
+    args = parse_args()
+    headers = make_headers(args.token)
+
+    commits = get_commits(args.repo, args.pr_number, headers)
     label = determine_label(commits)
 
-    for existing in get_current_labels():
+    for existing in get_current_labels(args.repo, args.pr_number, headers):
         if existing in VERSION_LABELS:
-            remove_label(existing)
+            remove_label(args.repo, args.pr_number, existing, headers)
+            print(f"Removed label: {existing}")
 
-    if label:
-        add_label(label)
-    else:
+    if not label:
         print("No version label assigned (no versioned commits found)")
+        return
+    add_label(args.repo, args.pr_number, label, headers)
+    print(f"Assigned label: {label}")
 
 
 if __name__ == "__main__":
