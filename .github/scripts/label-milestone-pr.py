@@ -20,6 +20,12 @@ def parse_args():
 
 
 def main():
+    """Assign the most significant version label to a milestone PR.
+
+    Fetches all commits in the PR, determines the highest-impact version label
+    (major > feature > patch > none), removes any stale version labels, and
+    assigns the new one. If no versioned commits are found, no label is assigned.
+    """
     args = parse_args()
     headers = make_headers(args.token)
 

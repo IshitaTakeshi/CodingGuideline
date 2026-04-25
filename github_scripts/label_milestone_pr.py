@@ -1,8 +1,25 @@
-"""Assigns a version label to a milestone PR based on its commits.
+"""Determine the most significant version label for a milestone PR.
 
-Parses the Conventional Commits subject of each commit in the PR and assigns
-the highest-impact version label: major > feature > fix/performance/revert.
-If no versioned commits are found, no label is assigned (no version bump).
+Objective
+---------
+A milestone PR merges a milestone branch into main and may contain commits
+of varying impact. This module analyses every commit in the PR and assigns
+the single label that reflects the most significant version change required,
+so that the release tooling can apply the correct SemVer bump.
+
+Behavior
+--------
+Each commit subject is parsed for Conventional Commits syntax.
+The version impact is determined by the following priority (highest first):
+
+  1. major  — any commit type followed by ``!`` (breaking change)
+  2. feature — ``feature:`` commits (minor version bump)
+  3. patch   — ``fix:``, ``performance:``, or ``revert:`` commits
+  4. none    — all other types (e.g. ``documentation:``, ``chore:``)
+
+The label corresponding to the highest priority found across all commits is
+assigned. If no versioned commits are found, no label is assigned and the
+version is not bumped.
 """
 
 import re
