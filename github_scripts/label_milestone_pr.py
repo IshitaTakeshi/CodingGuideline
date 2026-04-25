@@ -9,13 +9,9 @@ so that the release tooling can apply the correct SemVer bump.
 
 Behavior
 --------
-Each commit subject is parsed for Conventional Commits syntax.
-The version impact is determined by the following priority (highest first):
-
-  1. major  — any commit type followed by ``!`` (breaking change)
-  2. feature — ``feature:`` commits (minor version bump)
-  3. patch   — ``fix:``, ``performance:``, or ``revert:`` commits
-  4. none    — all other types (e.g. ``documentation:``, ``chore:``)
+Each commit subject is parsed for Conventional Commits syntax and mapped to
+a version label. The label priority and its version impact are defined in
+``.github/release-drafter.yml`` under ``version-resolver``.
 
 The label corresponding to the highest priority found across all commits is
 assigned. If no versioned commits are found, no label is assigned and the
