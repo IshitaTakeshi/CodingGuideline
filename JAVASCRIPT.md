@@ -88,7 +88,7 @@ async function connectToDatabase(connectionString) {
 
 ## 6. Imports
 
-* **Sorting:** Can be automated via ESLint (e.g., `eslint-plugin-import` or `simple-import-sort`), but requires an additional plugin — not included in the base rules above.
+* **Sorting:** Can be automated via ESLint (e.g., `eslint-plugin-import` or `simple-import-sort`), but requires an additional plugin — not included in the base rules in [Section 8](#8-tooling).
 * **Unused Imports:** Strictly forbidden. The build will fail if detected.
 * **Paths:** Prefer absolute alias paths (e.g., `@/components/`) over deep relative paths (`../../../components/`).
 
@@ -163,28 +163,32 @@ npm init @eslint/config@latest
 Then add the following rules to your `eslint.config.js` to enforce this guideline:
 
 ```js
-rules: {
-  // Section 1: Size limits
-  "max-lines": ["error", { "max": 100, "skipBlankLines": true, "skipComments": true }],
-  "max-lines-per-function": ["error", { "max": 15, "skipBlankLines": true, "skipComments": true }],
-  "max-params": ["error", 3],
+export default [
+  {
+    rules: {
+      // Section 1: Size limits
+      "max-lines": ["error", { "max": 100, "skipBlankLines": true, "skipComments": true }],
+      "max-lines-per-function": ["error", { "max": 15, "skipBlankLines": true, "skipComments": true }],
+      "max-params": ["error", 3],
 
-  // Section 2: No else
-  "no-restricted-syntax": [
-    "error",
-    {
-      selector: "IfStatement[alternate]",
-      message: "The else keyword is forbidden. Use guard clauses (early returns) instead.",
+      // Section 2: No else
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "IfStatement[alternate]",
+          message: "The else keyword is forbidden. Use guard clauses (early returns) instead.",
+        },
+      ],
+
+      // Section 6: Imports
+      "no-duplicate-imports": "error",
+
+      // Section 7: Complexity
+      "complexity": ["error", 4],
+      "max-depth": ["error", 2],
     },
-  ],
-
-  // Section 6: Imports
-  "no-duplicate-imports": "error",
-
-  // Section 7: Complexity
-  "complexity": ["error", 4],
-  "max-depth": ["error", 2],
-}
+  },
+];
 ```
 
 For TypeScript files, also disable the base `no-unused-vars` and enable `@typescript-eslint/no-unused-vars: "error"`.
@@ -213,9 +217,7 @@ Then enable these compiler options in `tsconfig.json` to satisfy [Section 4](#4-
 }
 ```
 
-> **Minimum version:** `"moduleResolution": "bundler"` requires **TypeScript ≥ 5.0**.
-
-> **Browser projects:** The default `lib` targets ES2020 only. Add `"DOM"` and `"DOM.Iterable"`:
+> **Browser projects:** If your project targets browsers, explicitly set `lib` to include the browser libraries:
 > ```json
 > { "compilerOptions": { "lib": ["ES2020", "DOM", "DOM.Iterable"] } }
 > ```

@@ -30,7 +30,9 @@ git submodule update --init --recursive
 
 ## GitHub Workflows
 
-The workflows in this repository support [reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows). Reference them directly from your project without copying — updates flow automatically when you update the submodule.
+The workflows in this repository support [reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows). Reference them directly from your project without copying — they always run the version currently on `main` of this repository, independent of the submodule revision. To pin to a specific version, replace `@main` with a tag or commit SHA.
+
+> **Permissions:** GitHub Actions tokens default to read-only in many repos. Each example below includes the required `permissions:` block so the workflow has write access where needed.
 
 ### PR Title Check
 
@@ -44,6 +46,9 @@ on:
 jobs:
   lint-pr:
     uses: IshitaTakeshi/CodingGuideline/.github/workflows/check-pr-title.yml@main
+    permissions:
+      pull-requests: write
+      statuses: read
 ```
 
 ### Pull Request Labeler
@@ -58,6 +63,9 @@ on:
 jobs:
   label:
     uses: IshitaTakeshi/CodingGuideline/.github/workflows/labeler.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
 ```
 
 Also copy the labeler configuration to your project (this file stays in your repo and can be customized):
@@ -78,6 +86,9 @@ on:
 jobs:
   assign-major-label:
     uses: IshitaTakeshi/CodingGuideline/.github/workflows/auto-label-major.yml@main
+    permissions:
+      pull-requests: write
+      issues: write
 ```
 
 ### Release Drafter
@@ -93,6 +104,9 @@ on:
 jobs:
   draft:
     uses: IshitaTakeshi/CodingGuideline/.github/workflows/release-drafter.yml@main
+    permissions:
+      contents: write
+      pull-requests: read
 ```
 
 Also copy the release drafter configuration to your project:
