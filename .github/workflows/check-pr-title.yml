@@ -2,6 +2,7 @@ name: "Lint PR"
 on:
   pull_request_target:
     types: [opened, edited, synchronize]
+  workflow_call:
 jobs:
   main:
     name: Validate PR title

@@ -88,7 +88,7 @@ async function connectToDatabase(connectionString) {
 
 ## 6. Imports
 
-* **Sorting:** Can be automated via ESLint (e.g., `eslint-plugin-import` or `simple-import-sort`), but requires a plugin configured in the consuming project — not included in the shared `eslint.config.js`.
+* **Sorting:** Can be automated via ESLint (e.g., `eslint-plugin-import` or `simple-import-sort`), but requires an additional plugin — not included in the base rules above.
 * **Unused Imports:** Strictly forbidden. The build will fail if detected.
 * **Paths:** Prefer absolute alias paths (e.g., `@/components/`) over deep relative paths (`../../../components/`).
 
@@ -152,40 +152,70 @@ Ask: **"What distinct step can I name?"** Extract that named step into a private
 
 ## 8. Tooling
 
-This repository provides configuration files for automated enforcement.
+### ESLint (Linter)
 
-### ESLint (Linter & Formatter)
-
-The shared config supports both JavaScript and TypeScript. Install the required peer dependency first:
+Bootstrap ESLint with the official setup tool:
 
 ```sh
-npm install --save-dev typescript-eslint
+npm init @eslint/config@latest
 ```
 
-Then extend it in your project:
+Then add the following rules to your `eslint.config.js` to enforce this guideline:
 
 ```js
-// eslint.config.js
-import baseConfig from "./.coding-guideline/eslint.config.js";
-export default [...baseConfig];
+rules: {
+  // Section 1: Size limits
+  "max-lines": ["error", { "max": 100, "skipBlankLines": true, "skipComments": true }],
+  "max-lines-per-function": ["error", { "max": 15, "skipBlankLines": true, "skipComments": true }],
+  "max-params": ["error", 3],
+
+  // Section 2: No else
+  "no-restricted-syntax": [
+    "error",
+    {
+      selector: "IfStatement[alternate]",
+      message: "The else keyword is forbidden. Use guard clauses (early returns) instead.",
+    },
+  ],
+
+  // Section 6: Imports
+  "no-duplicate-imports": "error",
+
+  // Section 7: Complexity
+  "complexity": ["error", 4],
+  "max-depth": ["error", 2],
+}
 ```
+
+For TypeScript files, also disable the base `no-unused-vars` and enable `@typescript-eslint/no-unused-vars: "error"`.
 
 ### TypeScript (Type Checker)
 
-TypeScript supports configuration inheritance via `extends`. Use the shared base config in `tsconfig.json`:
+Bootstrap TypeScript with:
+
+```sh
+npx tsc --init
+```
+
+Then enable these compiler options in `tsconfig.json` to satisfy [Section 4](#4-type-safety):
 
 ```json
 {
-  "extends": "./.coding-guideline/tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist"
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true
   }
 }
 ```
 
-> **Minimum version:** The base config uses `"moduleResolution": "bundler"`, which requires **TypeScript ≥ 5.0**.
+> **Minimum version:** `"moduleResolution": "bundler"` requires **TypeScript ≥ 5.0**.
 
-> **Browser projects:** The base `lib` targets ES2020 only. Add `"DOM"` and `"DOM.Iterable"` in your project's `tsconfig.json`:
+> **Browser projects:** The default `lib` targets ES2020 only. Add `"DOM"` and `"DOM.Iterable"`:
 > ```json
 > { "compilerOptions": { "lib": ["ES2020", "DOM", "DOM.Iterable"] } }
 > ```
