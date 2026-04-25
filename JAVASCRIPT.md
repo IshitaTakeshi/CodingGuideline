@@ -206,7 +206,7 @@ export default [
     rules: { /* ... */ },
   },
   {
-    files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+    files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts", "**/*.mtsx", "**/*.ctsx"],
     languageOptions: {
       parser: tseslint.parser,
     },
