@@ -42,6 +42,11 @@ def make_headers(token):
     }
 
 
+def _labels_url(repo, pr_number, name=None):
+    url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels"
+    return f"{url}/{name}" if name else url
+
+
 def get_commits(repo, pr_number, headers):
     commits = []
     page = 1
@@ -79,26 +84,20 @@ def determine_label(commits):
 
 
 def get_current_labels(repo, pr_number, headers):
-    resp = requests.get(
-        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels",
-        headers=headers,
-    )
+    resp = requests.get(_labels_url(repo, pr_number), headers=headers)
     resp.raise_for_status()
     return [entry["name"] for entry in resp.json()]
 
 
 def remove_label(repo, pr_number, name, headers):
-    resp = requests.delete(
-        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels/{name}",
-        headers=headers,
-    )
+    resp = requests.delete(_labels_url(repo, pr_number, name), headers=headers)
     if resp.status_code not in (200, 404):
         resp.raise_for_status()
 
 
 def add_label(repo, pr_number, name, headers):
     resp = requests.post(
-        f"https://api.github.com/repos/{repo}/issues/{pr_number}/labels",
+        _labels_url(repo, pr_number),
         headers=headers,
         json={"labels": [name]},
     )
