@@ -91,7 +91,7 @@ def get_commits(repo: str, pr_number: int, headers: dict[str, str]) -> list[GitH
 
 
 def _update_label(
-    label: Label | None, priority: float, type_: str
+    label: Label | None, priority: float, type_: str | Label
 ) -> tuple[Label | None, float]:
     """Return an updated (label, priority) pair when a higher-priority type is found.
 
