@@ -68,6 +68,7 @@ main
 * **`milestone-number`** is the **GitHub Milestone number**.
 * The concept or goal is written in the **GitHub Milestone's description** — not in any file on the branch.
 * Feature/fix branch naming follows the existing convention (`feature/<issue-number>-<description>`). Issue numbers are unique project-wide and are independent of milestone numbers.
+* **Exception to [Section 2](#2-development-workflow)**: when using a milestone branch, feature/fix branches are created from the milestone branch — not from `main`.
 
 ### Lifecycle
 
@@ -75,6 +76,7 @@ main
 2. **Create** `milestone/<milestone-number>-<description>` from `main`.
 3. **Work**: open Issues under the Milestone, create `feature/<issue-number>-...` branches from the milestone branch, and PR back into it.
 4. **Close**: when all Issues are resolved, merge the milestone branch into `main` via a PR, then close the GitHub Milestone.
+    * ⚠️ The `milestone/...` branch prefix is not matched by the auto-labeler. Add the appropriate SemVer label manually (`major`, `feature`, `fix`, etc.) before merging so release automation works correctly.
 
 ---
 
