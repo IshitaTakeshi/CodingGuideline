@@ -1,0 +1,24 @@
+name: "Label Milestone PR"
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  label-milestone:
+    if: startsWith(github.head_ref, 'milestone/')
+    name: Assign version label based on commit analysis
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Determine and assign version label
+        run: python .github/scripts/label-milestone-pr.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}

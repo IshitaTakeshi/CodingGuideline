@@ -1,6 +1,9 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
+  - title: '🎯 Milestone Releases'
+    labels:
+      - 'milestone'
   - title: '🚀 Features'
     labels:
       - 'feature'

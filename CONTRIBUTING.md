@@ -19,16 +19,18 @@ When you find a task or bug, create an Issue. Choose the appropriate template:
 
 ### Step 2: Create a Branch
 Create a working branch from `main`.
-**Naming convention: `prefix/issue-number-description`**
+**Naming convention: `prefix/<issue-number>-<description>`**
 
 * **prefix**: Corresponds to the Type (see below): `feature/`, `fix/`, `documentation/`, etc.
-* **issue-number**: The corresponding Issue number (required)
-* **description**: Brief description in kebab-case (lowercase letters and hyphens)
+* **`<issue-number>`**: The corresponding Issue number (required)
+* **`<description>`**: Brief description in kebab-case (lowercase letters and hyphens)
 
 **Good examples:**
 * ✅ `feature/123-login-page` (Login feature for Issue #123)
 * ✅ `fix/45-auth-token-bug` (Bug fix for Issue #45)
 * ✅ `documentation/67-api-guide` (Documentation update for Issue #67)
+
+> **Exception**: When organizing work under a Milestone, create feature/fix branches from the milestone branch instead of `main`. See [Section 3: Milestone Branch Workflow](#3-milestone-branch-workflow).
 
 ### Step 3: Implementation & Push
 Develop locally. Since changes will be squash merged, commit messages during work are flexible (e.g., `wip`, `fix`).
@@ -39,6 +41,7 @@ Create a PR on GitHub.
 * **Body**: Use the PR template to provide complete context. See **[PR Description Best Practices](#5-pr-description-best-practices)** below.
 * **Labels**: Automatically assigned based on branch name.
     * ⚠️ **For breaking changes**: The `major` label is automatically assigned when the PR title contains `!`.
+    * ⚠️ **For milestone branches**: The version label (`major`, `feature`, `fix`, etc.) is automatically determined by CI, which analyzes the commits included in the milestone branch.
 * **Draft PRs**: If your work is not ready for review, create a Draft PR. This signals to reviewers that the code is still in progress and allows early feedback without formal review.
 
 ### Step 5: Review & Merge
@@ -74,7 +77,7 @@ main
 1. **Open** a GitHub Milestone and describe the concept/goal in its description.
 2. **Create** `milestone/<milestone-number>-<description>` from `main`.
 3. **Work**: open Issues under the Milestone, create `feature/<issue-number>-...` branches from the milestone branch, and PR back into it.
-4. **Close**: when all Issues are resolved, merge the milestone branch into `main` via a PR, then close the GitHub Milestone.
+4. **Close**: when all Issues are resolved, open a PR from the milestone branch into `main`. CI automatically assigns the version label by analyzing the commits in the milestone branch. After merge, close the GitHub Milestone.
 
 ---
 
