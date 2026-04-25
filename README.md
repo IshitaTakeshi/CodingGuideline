@@ -1,6 +1,6 @@
 # Coding Guideline
 
-A reusable coding guideline repository that provides standardized development practices, CI/CD configurations, and project templates.
+A reusable coding guideline repository providing development standards, GitHub workflow automation, and project templates.
 
 ## Features
 
@@ -11,116 +11,125 @@ A reusable coding guideline repository that provides standardized development pr
 - Issue and PR templates
 - Automated labeling and PR title validation
 
-## Quick Start
+## Setup
 
-Run the following command from your project root:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/IshitaTakeshi/CodingGuideline/main/setup.sh | bash
-```
-
-Alternatively, you can download and run the script manually:
-
-1. Download the setup script from the [GitHub repository](https://github.com/IshitaTakeshi/CodingGuideline)
-2. Run the script from your project root:
+Add this repository as a submodule to your project:
 
 ```bash
-chmod +x setup.sh
-./setup.sh
-```
+# SSH (requires SSH key configured with GitHub)
+git submodule add git@github.com:IshitaTakeshi/CodingGuideline.git .coding-guideline
 
-The script will:
-- Add this repository as a git submodule (or update if already added)
-- Copy GitHub workflows, issue templates, PR template, labeler and release drafter configurations
-- Add comment headers to all copied files indicating they are managed by CodingGuideline
-- Create a manifest file (`.coding-guideline-manifest.txt`) to track all copied files
+# HTTPS alternative
+git submodule add https://github.com/IshitaTakeshi/CodingGuideline.git .coding-guideline
 
-## Managing the Guidelines
-
-### Updating to the Latest Version
-
-To update all guideline files to the latest version:
-
-```bash
-./setup.sh update
-```
-
-This will:
-- Update the submodule to the latest version
-- Refresh all tracked files with the latest content
-- Update comment headers with the new version
-
-### Setting Up JavaScript/TypeScript Tooling
-
-To bootstrap ESLint and TypeScript in a JavaScript or TypeScript project:
-
-```bash
-./setup.sh javascript
-```
-
-Prerequisites: `node` and `npm` must be installed. The guideline submodule must already be present (run `./setup.sh install` first).
-
-This will:
-- Create `package.json` with `"type": "module"` if one does not exist, or add the field if it does
-- Install `typescript-eslint` as a dev dependency
-- Create `eslint.config.js` extending the shared ESLint config, if absent
-- Create `tsconfig.json` extending the shared TypeScript base config, if absent
-
-`eslint.config.js` and `tsconfig.json` are **user-owned** — they are not tracked in the manifest and will not be touched by `update` or `remove`. Customize them freely.
-
-### Removing the Guidelines
-
-To remove all guideline files from your project:
-
-```bash
-./setup.sh remove
-```
-
-This will:
-- Remove all files tracked in the manifest
-- Optionally remove the submodule
-- Clean up the manifest file
-
-The script will ask for confirmation before removing files.
-
-### How File Tracking Works
-
-All copied files include comment headers that identify them as managed by CodingGuideline:
-
-**YAML files** (workflows, configs):
-```yaml
-# Managed by CodingGuideline (version: abc1234)
-# Do not edit manually - changes may be overwritten
-# To update: run setup.sh update
-```
-
-**Markdown files** (templates, documentation):
-```markdown
-<!-- Managed by CodingGuideline (version: abc1234) -->
-<!-- Do not edit manually - changes may be overwritten -->
-<!-- To update: run setup.sh update -->
-```
-
-The manifest file (`.coding-guideline-manifest.txt`) tracks all copied files:
-```
-version: abc1234567890...
-.github/workflows/labeler.yml
-.github/workflows/release-drafter.yml
-.github/ISSUE_TEMPLATE/fix.md
-.github/ISSUE_TEMPLATE/feature.md
-.github/pull_request_template.md
-```
-
-### Cloning a Project with This Submodule
-
-When cloning a project that uses this guideline as a submodule:
-
-```bash
-# Clone with submodules
-git clone --recurse-submodules <your-project-url>
-
-# Or if already cloned without submodules
 git submodule update --init --recursive
+```
+
+When cloning a project that already has this submodule:
+
+```bash
+git clone --recurse-submodules <your-project-url>
+# Or if already cloned without submodules:
+git submodule update --init --recursive
+```
+
+## GitHub Workflows
+
+The workflows in this repository support [reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows). Reference them directly from your project without copying — they always run the version currently on `main` of this repository, independent of the submodule revision. To pin to a specific version, replace `@main` with a tag or commit SHA.
+
+> **Permissions:** GitHub Actions tokens default to read-only in many repos. Each example below includes the required `permissions:` block so the workflow has write access where needed.
+
+### PR Title Check
+
+Create `.github/workflows/check-pr-title.yml` in your project:
+
+```yaml
+name: "Lint PR"
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize]
+jobs:
+  lint-pr:
+    uses: IshitaTakeshi/CodingGuideline/.github/workflows/check-pr-title.yml@main
+    permissions:
+      pull-requests: write
+      statuses: read
+```
+
+### Pull Request Labeler
+
+Create `.github/workflows/labeler.yml` in your project:
+
+```yaml
+name: "Pull Request Labeler"
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+jobs:
+  label:
+    uses: IshitaTakeshi/CodingGuideline/.github/workflows/labeler.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+```
+
+Also copy the labeler configuration to your project (this file stays in your repo and can be customized):
+
+```bash
+cp .coding-guideline/.github/labeler.yml .github/labeler.yml
+```
+
+### Auto Major Label
+
+Create `.github/workflows/auto-label-major.yml` in your project:
+
+```yaml
+name: "Auto-assign Major Label"
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize]
+jobs:
+  assign-major-label:
+    uses: IshitaTakeshi/CodingGuideline/.github/workflows/auto-label-major.yml@main
+    permissions:
+      pull-requests: write
+      issues: write
+```
+
+### Release Drafter
+
+Create `.github/workflows/release-drafter.yml` in your project:
+
+```yaml
+name: Release Drafter
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  draft:
+    uses: IshitaTakeshi/CodingGuideline/.github/workflows/release-drafter.yml@main
+    permissions:
+      contents: write
+      pull-requests: read
+```
+
+Also copy the release drafter configuration to your project:
+
+```bash
+cp .coding-guideline/.github/release-drafter.yml .github/release-drafter.yml
+```
+
+## Copy-Once Files
+
+These files are best copied once and owned by your project. After copying, customize them freely:
+
+```bash
+# Issue templates
+cp -r .coding-guideline/.github/ISSUE_TEMPLATE .github/
+
+# PR template
+cp .coding-guideline/.github/pull_request_template.md .github/pull_request_template.md
 ```
 
 ## License

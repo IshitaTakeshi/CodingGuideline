@@ -2,6 +2,7 @@ name: "Auto-assign Major Label"
 on:
   pull_request_target:
     types: [opened, edited, synchronize]
+  workflow_call:
 
 jobs:
   assign-major-label:
