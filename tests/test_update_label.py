@@ -4,8 +4,8 @@ from github_scripts.label_milestone_pr import PATCH_TYPES, Label, _update_label
 
 
 class TestUpdateLabel:
-    def test_feat_string_sets_feature(self):
-        label, priority = _update_label(None, float("inf"), "feat")
+    def test_feature_string_sets_feature(self):
+        label, priority = _update_label(None, float("inf"), "feature")
         assert label == Label.FEATURE
         assert priority == 1
 

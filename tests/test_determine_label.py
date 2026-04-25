@@ -16,20 +16,20 @@ class TestDetermineLabel:
         assert determine_label(commits) is None
 
     @pytest.mark.parametrize("subject,expected", [
-        ("feat: add feature", Label.FEATURE),
+        ("feature: add feature", Label.FEATURE),
         ("fix: fix bug", Label.FIX),
         ("performance: improve speed", Label.PERFORMANCE),
         ("revert: revert change", Label.REVERT),
-        ("feat!: breaking change", Label.MAJOR),
-        ("feat(scope)!: breaking change", Label.MAJOR),
-        ("feat(auth): add login", Label.FEATURE),
+        ("feature!: breaking change", Label.MAJOR),
+        ("feature(scope)!: breaking change", Label.MAJOR),
+        ("feature(auth): add login", Label.FEATURE),
         ("fix(ui): fix button", Label.FIX),
     ])
     def test_single_commit_label(self, subject: str, expected: Label) -> None:
         assert determine_label([_make_commit(subject)]) == expected
 
-    def test_feat_beats_fix_regardless_of_order(self):
-        commits = [_make_commit("fix: fix bug"), _make_commit("feat: add feature")]
+    def test_feature_beats_fix_regardless_of_order(self):
+        commits = [_make_commit("fix: fix bug"), _make_commit("feature: add feature")]
         assert determine_label(commits) == Label.FEATURE
 
     def test_breaking_commit_short_circuits_to_major(self):
@@ -37,7 +37,7 @@ class TestDetermineLabel:
         assert determine_label(commits) == Label.MAJOR
 
     def test_multiline_message_uses_subject_only(self):
-        message = "feat: add feature\n\nfix!: this line is in the body and not parsed"
+        message = "feature: add feature\n\nfix!: this line is in the body and not parsed"
         assert determine_label([_make_commit(message)]) == Label.FEATURE
 
 
