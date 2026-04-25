@@ -70,7 +70,7 @@ main
 
 * **`milestone-number`** is the **GitHub Milestone number**.
 * The concept or goal is written in the **GitHub Milestone's description** — not in any file on the branch.
-* Feature/fix branch naming follows the existing convention (`feature/<issue-number>-<description>`). Issue numbers are unique project-wide and are independent of milestone numbers.
+* Feature/fix branches are created from the milestone branch (not `main`) and follow the existing naming convention (`feature/<issue-number>-<description>`). Issue numbers are unique project-wide and are independent of milestone numbers.
 
 ### Lifecycle
 
