@@ -62,6 +62,14 @@ def get_commits(repo, pr_number, headers):
     return commits
 
 
+def _update_label(label, priority, type_):
+    if type_ == Label.FEATURE and priority > 1:
+        return Label.FEATURE, 1
+    if type_ in PATCH_TYPES and priority > 2:
+        return type_, 2
+    return label, priority
+
+
 def determine_label(commits):
     label = None
     priority = float("inf")
@@ -72,11 +80,7 @@ def determine_label(commits):
         m = TYPE_RE.match(subject)
         if not m:
             continue
-        type_ = m.group(1)
-        if type_ == Label.FEATURE and priority > 1:
-            label, priority = Label.FEATURE, 1
-        elif type_ in PATCH_TYPES and priority > 2:
-            label, priority = type_, 2
+        label, priority = _update_label(label, priority, m.group(1))
     return label
 
 
