@@ -191,7 +191,35 @@ export default [
 ];
 ```
 
-For TypeScript files, also disable the base `no-unused-vars` and enable `@typescript-eslint/no-unused-vars: "error"`.
+For TypeScript files, install `typescript-eslint` and add a separate config block with the parser, plugin, and TS-specific rule overrides:
+
+```sh
+npm install --save-dev typescript-eslint
+```
+
+```js
+import tseslint from "typescript-eslint";
+
+export default [
+  {
+    // JavaScript rules (from above)
+    rules: { /* ... */ },
+  },
+  {
+    files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+    languageOptions: {
+      parser: tseslint.parser,
+    },
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+    },
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "error",
+    },
+  },
+];
+```
 
 ### TypeScript (Type Checker)
 

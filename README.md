@@ -16,7 +16,12 @@ A reusable coding guideline repository providing development standards, GitHub w
 Add this repository as a submodule to your project:
 
 ```bash
+# SSH (requires SSH key configured with GitHub)
 git submodule add git@github.com:IshitaTakeshi/CodingGuideline.git .coding-guideline
+
+# HTTPS alternative
+git submodule add https://github.com/IshitaTakeshi/CodingGuideline.git .coding-guideline
+
 git submodule update --init --recursive
 ```
 
