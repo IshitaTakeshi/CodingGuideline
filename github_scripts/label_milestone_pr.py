@@ -33,6 +33,7 @@ class Label(StrEnum):
 
 
 GITHUB_API_URL = "https://api.github.com"
+REQUEST_TIMEOUT = 10
 
 BREAKING_RE = re.compile(r"^[a-z]+(\([^)]+\))?!:")
 TYPE_RE = re.compile(r"^([a-z]+)(?:\([^)]+\))?!?:")
@@ -66,6 +67,7 @@ def get_commits(repo, pr_number, headers):
             f"{GITHUB_API_URL}/repos/{repo}/pulls/{pr_number}/commits",
             headers=headers,
             params={"per_page": 100, "page": page},
+            timeout=REQUEST_TIMEOUT,
         )
         resp.raise_for_status()
         batch = resp.json()
@@ -140,6 +142,7 @@ def get_current_labels(repo, pr_number, headers):
     resp = requests.get(
         f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels",
         headers=headers,
+        timeout=REQUEST_TIMEOUT,
     )
     resp.raise_for_status()
     return [entry["name"] for entry in resp.json()]
@@ -153,6 +156,7 @@ def remove_label(repo, pr_number, name, headers):
     resp = requests.delete(
         f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels/{name}",
         headers=headers,
+        timeout=REQUEST_TIMEOUT,
     )
     if resp.status_code not in (200, 404):
         resp.raise_for_status()
@@ -167,5 +171,6 @@ def add_label(repo, pr_number, name, headers):
         f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/labels",
         headers=headers,
         json={"labels": [name]},
+        timeout=REQUEST_TIMEOUT,
     )
     resp.raise_for_status()
