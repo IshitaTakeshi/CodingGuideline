@@ -66,13 +66,13 @@ def determine_label(commits):
     for commit in commits:
         subject = commit["commit"]["message"].split("\n")[0]
         if BREAKING_RE.match(subject):
-            return "major"
+            return Label.MAJOR
         m = TYPE_RE.match(subject)
         if not m:
             continue
         type_ = m.group(1)
-        if type_ == "feature" and priority > 1:
-            label, priority = "feature", 1
+        if type_ == Label.FEATURE and priority > 1:
+            label, priority = Label.FEATURE, 1
         elif type_ in PATCH_TYPES and priority > 2:
             label, priority = type_, 2
     return label
